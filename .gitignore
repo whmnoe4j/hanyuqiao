@@ -1,4 +1,9 @@
+<<<<<<< HEAD
+*.pyc
+*.log
+=======
 # Windows image file caches
+*.pyc
 Thumbs.db
 ehthumbs.db
 
@@ -34,3 +39,4 @@ Icon
 # Files that might appear on external disk
 .Spotlight-V100
 .Trashes
+>>>>>>> 2bb71d6b0eb97b39a7e46b7aa52b5317a006779c

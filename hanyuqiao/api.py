@@ -429,7 +429,9 @@ def login(request):
     myuser.token = str(random.random())[2:]+str(random.random())[2:]
     myuser.save()
 
-    return HttpResponse(myuser.token, mimetype='text/plain')
+    return HttpResponse(
+        json.dumps({'token': myuser.token, 'userid': myuser.id}),
+        mimetype="text/json")
 
 
 @require_http_methods(["POST"])
@@ -521,7 +523,7 @@ def get_notification(request):
     data = request.data
     # notificationid is really extra_notificationid
     if 'notificationid' not in data:
-        errormsg = u'没有传递target_cellphone'
+        errormsg = u'没有传递notificationid'
         return HttpResponse(json.dumps({'errormsg': errormsg}),
                             mimetype='text/json')
     else:
