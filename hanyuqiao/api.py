@@ -173,6 +173,13 @@ def translate(request, messageid, languageid):
 
 
 @token_required
+@require_http_methods(["GET"])
+def get_subjects(request):
+    subjects = MessageSubject.objects.all().value_lists('title')
+    return HttpResponse(json.dumps(subjects), mimetype='text/json')
+
+
+@token_required
 @require_http_methods(["GET",'OPTIONS'])
 def get_messages(request):
     data = request.data
