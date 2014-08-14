@@ -10,7 +10,6 @@ from hanyuqiao.models import Version, Notification, ExtraNotification,\
 import json
 import random
 import datetime
-from django.contrib.auth import authenticate
 
 def token_required(func):
     def inner(request, *args, **kwargs):
