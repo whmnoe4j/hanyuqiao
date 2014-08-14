@@ -364,6 +364,8 @@ def register(request):
 
         myuser = MyUser(user=user, cellphone=request.POST['cellphone'])
         for k, v in request.POST.items():
+            if k in ['password','cellphone']:
+                continue
             setattr(myuser, k, v)
         myuser.save()
     except Exception as e:
