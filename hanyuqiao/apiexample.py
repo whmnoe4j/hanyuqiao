@@ -93,6 +93,13 @@ class mytest(unittest.TestCase):
         r = requests.get('%s/%s' % (u, 'get_messages'),data=json.dumps(data))
         self.assertIsInstance(r.json(), list)
 
+    def test_get_subjects(self):
+        userid = 1
+        token = '123456'
+        data = {'userid':userid, 'token':token}
+        r = requests.get('%s/%s/' % (u, 'get_subjects'), data=json.dumps(data))
+        self.assertIsInstance(r.json(), list)
+
     def test_get_message(self):
         messageid = 1
         r = requests.get('%s/%s/%s' % (u, 'get_message', messageid))

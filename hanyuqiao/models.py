@@ -55,6 +55,7 @@ class MyUser(models.Model):
     )
     user = models.OneToOneField(User)
     friends = models.ManyToManyField("self", null=True, blank=True)
+    pic = models.ImageField(upload_to='.')
     language = models.ForeignKey(Language, null=True, blank=True)
     favorites = models.ManyToManyField(Message, null=True, blank=True)
     cname = models.CharField(max_length=32, null=True, blank=True)
