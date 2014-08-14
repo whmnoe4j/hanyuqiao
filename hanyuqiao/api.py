@@ -206,32 +206,6 @@ def get_messages(request):
                         mimetype='text/json')
 
 
-#@require_http_methods(["GET"])
-# def get_messages(request, languageid):
-    # try:
-        #language = Language.objects.get(id=languageid)
-    # except Language.DoesNotExist:
-        #errormsg = u'语言不存在'
-        # return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            # mimetype='text/json')
-
-    #start = request.GET.get('start', 0)
-    #cnt = request.GET.get('cnt', 20)
-    # if 'start_time' in request.GET:
-        #start_time = request.GET['start_time']
-        # mcs = MessageContent.objects.filter(
-            # language=language, postdate__gt=start_time)[start:start+cnt]
-    # else:
-        #mcs = MessageContent.objects.filter(language=language)[start:start+cnt]
-
-    # return HttpResponse(
-        # json.dumps(
-            # list(
-                # mcs.values()),
-            # default=default_json_dump),
-        # mimetype='text/json')
-
-
 @require_http_methods(["GET"])
 def get_message(request, messageid):
     mc = MessageContent.objects.filter(id=messageid)
