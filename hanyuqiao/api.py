@@ -187,6 +187,8 @@ def get_messages(request):
     user = request.user
     language = user.language
     subject = data.get('subject')
+    start = data.get('start')
+    count = data.get('count')
     if subject:
         print 'subject: '+subject
         try:
@@ -196,9 +198,9 @@ def get_messages(request):
             return HttpResponse(json.dumps({'errormsg': errormsg}),
                                 mimetype='text/json')
         else:
-            messages = ms.message_set.all()
+            messages = ms.message_set.all()[start:start+count]
     else:
-        messages = Message.objects.all()
+        messages = Message.objects.all()[start:start+count]
 
     messagecontents = []
     for m in messages:
