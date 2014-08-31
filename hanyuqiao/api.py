@@ -11,6 +11,7 @@ import json
 import random
 import datetime
 
+
 def token_required(func):
     def inner(request, *args, **kwargs):
         try:
@@ -71,7 +72,7 @@ def newest_version(request):
         mimetype="text/json")
 
 
-@require_http_methods(["POST",'OPTIONS'])
+@require_http_methods(["POST", 'OPTIONS'])
 def get_user_by_uid_or_create(request, uid):
     try:
         data = json.loads(request.body)
@@ -119,7 +120,7 @@ def get_language_list(request):
 
 
 @token_required
-@require_http_methods(["POST",'OPTIONS'])
+@require_http_methods(["POST", 'OPTIONS'])
 def set_language(request):
     data = request.data
     user = request.user
@@ -180,7 +181,7 @@ def get_subjects(request):
 
 
 @token_required
-@require_http_methods(["GET",'OPTIONS'])
+@require_http_methods(["GET", 'OPTIONS'])
 def get_messages(request):
     data = request.data
     user = request.user
@@ -205,10 +206,11 @@ def get_messages(request):
         if mc.count() > 0:
             messagecontents.extend(list(mc.values()))
         else:
-            _ = m.messagecontent_set.annotate(min_index=Min('language__index')).values()
+            _ = m.messagecontent_set.annotate(
+                min_index=Min('language__index')).values()
             messagecontents.extend(_[:1])
 
-    messagecontents.sort(key=lambda e:e['postdate'])
+    messagecontents.sort(key=lambda e: e['postdate'])
     return HttpResponse(json.dumps(messagecontents, default=default_json_dump),
                         mimetype='text/json')
 
@@ -221,12 +223,16 @@ def get_message(request, messageid):
         return HttpResponse(json.dumps({'errormsg': errormsg}),
                             mimetype='text/json')
 
-    return HttpResponse(json.dumps(list(mc.values()), default=default_json_dump),
-                        mimetype='text/json')
+    return HttpResponse(
+        json.dumps(
+            list(
+                mc.values()),
+            default=default_json_dump),
+        mimetype='text/json')
 
 
 @token_required
-@require_http_methods(["POST",'OPTIONS'])
+@require_http_methods(["POST", 'OPTIONS'])
 def set_favorite(request):
     data = request.data
     user = request.user
@@ -245,7 +251,7 @@ def set_favorite(request):
 
 
 @token_required
-@require_http_methods(["GET",'OPTIONS'])
+@require_http_methods(["GET", 'OPTIONS'])
 def get_favorites(request):
     user = request.user
     language = user.language
@@ -304,7 +310,7 @@ def search_players(request):
 
 
 @token_required
-@require_http_methods(["POST",'OPTIONS'])
+@require_http_methods(["POST", 'OPTIONS'])
 def vote(request):
     data = request.data
     user = request.user
@@ -364,7 +370,7 @@ def register(request):
 
         myuser = MyUser(user=user, cellphone=request.POST['cellphone'])
         for k, v in request.POST.items():
-            if k in ['password','cellphone']:
+            if k in ['password', 'cellphone']:
                 continue
             setattr(myuser, k, v)
         myuser.save()
@@ -375,7 +381,6 @@ def register(request):
 
     return HttpResponse(json.dumps(True),
                         mimetype='text/json')
-
 
 
 @require_http_methods(["GET"])
@@ -450,7 +455,7 @@ def modify_password(request):
 
 
 @token_required
-@require_http_methods(["POST",'OPTIONS'])
+@require_http_methods(["POST", 'OPTIONS'])
 def update_user_info(request):
     data = request.data
     user = request.user
@@ -528,7 +533,7 @@ def get_notification(request):
 
 
 @token_required
-@require_http_methods(["POST",'OPTIONS'])
+@require_http_methods(["POST", 'OPTIONS'])
 def invite(request):
     data = request.data
     user = request.user
