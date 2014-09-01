@@ -63,8 +63,6 @@ class MyUser(models.Model):
     nick = models.CharField(max_length=32, null=True, blank=True)
     uid = models.CharField(max_length=128, unique=True)
     gender = models.IntegerField(choices=GENDER, null=True, blank=True)
-    weibo = models.CharField(max_length=128, null=True, blank=True)
-    qq = models.CharField(max_length=16, null=True, blank=True)
     city = models.CharField(max_length=64, null=True, blank=True)
     desc = models.CharField(max_length=2048, null=True, blank=True)
     email = models.EmailField(max_length=2048, null=True, blank=True)
@@ -137,6 +135,7 @@ class IntroductionImage(models.Model):
 
 class Competition(models.Model):
     subject = models.CharField(max_length=512)
+    category = models.CharField(max_length=512)
     title = models.CharField(max_length=512)
     startdate = models.DateField()
     enddate = models.DateField()
@@ -160,6 +159,8 @@ class Player(models.Model):
     sn = models.IntegerField(unique=True)
     cname = models.CharField(max_length=32, null=True, blank=True)
     ename = models.CharField(max_length=256, null=True, blank=True)
+    weibo = models.CharField(max_length=128, null=True, blank=True)
+    qq = models.CharField(max_length=16, null=True, blank=True)
     pic = models.ImageField(upload_to='.', null=True, blank=True)
     birthyear = models.IntegerField(null=True, blank=True)
     gender = models.IntegerField(choices=GENDER, null=True, blank=True)
