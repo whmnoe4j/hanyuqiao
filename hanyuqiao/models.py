@@ -63,6 +63,8 @@ class MyUser(models.Model):
     nick = models.CharField(max_length=32, null=True, blank=True)
     uid = models.CharField(max_length=128, unique=True)
     gender = models.IntegerField(choices=GENDER, null=True, blank=True)
+    weibo = models.CharField(max_length=128, null=True, blank=True)
+    qq = models.CharField(max_length=16, null=True, blank=True)
     city = models.CharField(max_length=64, null=True, blank=True)
     desc = models.CharField(max_length=2048, null=True, blank=True)
     email = models.EmailField(max_length=2048, null=True, blank=True)
