@@ -178,10 +178,9 @@ def get_messages(request):
     user = request.user
     language = user.language
     subject = data.get('subject')
-    start = data.get('start')
-    count = data.get('count')
+    start = data.get('start',0)
+    count = data.get('count',10)
     if subject:
-        print 'subject: '+subject
         try:
             ms = MessageSubject.objects.get(title=subject)
         except MessageSubject.DoesNotExist:
@@ -272,7 +271,7 @@ def get_competitionSubjects(request):
                         mimetype='text/json')
 
 @token_required
-@require_http_methods(["GET"])
+@require_http_methods(["GET","OPTIONS"])
 def get_competitions(request):
     data = request.data
     competitions = Competition.objects
@@ -314,7 +313,6 @@ def search_players(request):
 
     players = Player.objects.filter(q)
     players = list(players.values())
-    print json.dumps(players, default=default_json_dump)
     return HttpResponse(json.dumps(players, default=default_json_dump),
                         mimetype='text/json')
 
