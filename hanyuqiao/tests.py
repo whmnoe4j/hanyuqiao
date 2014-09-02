@@ -11,6 +11,7 @@ import datetime
 class SimpleTest(TestCase):
 
     def setUp(self):
+        self.client = Client()
         self.language = Language.objects.create(name='english', index=1)
 
         self.version = Version.objects.create(version='3.1.2')
@@ -34,10 +35,12 @@ class SimpleTest(TestCase):
         myuser.save()
         self.myuser = myuser
 
-        self.competition = Competition.objects.create(
+        competition = Competition.objects.create(
             subject='football', title='title', startdate=datetime.date(
                 2014, 8, 8), enddate=datetime.date(
                 2014, 12, 12))
+        competition.save()
+        self.competition = competition
         self.player = Player.objects.create(competition=self.competition, sn=1)
         PlayerInfo.objects.create(
             player=self.player,
@@ -125,11 +128,13 @@ class SimpleTest(TestCase):
         self.assertEqual(r.content, json.dumps([{'id': 1, 'title': 'title'}]))
 
     def test_get_competitions(self):
-        r = self.client.get('/get_competitions')
+        data = json.dumps({'userid': 1, 'token': '123456', })
+        r = self.client.options('/get_competitions',data)
         self.assertEqual(r.content,
                          json.dumps([{'id': 1,
-                                      'subject': 'football',
-                                      'title': 'title',
+                                      'subject': self.competition.subject,
+                                      'title': self.competition.title,
+                                      'category':'',
                                       'startdate': self.competition.startdate.isoformat(),
                                       'enddate': self.competition.enddate.isoformat()}]))
 
@@ -176,7 +181,8 @@ class SimpleTest(TestCase):
                 'cellphone': '13888888888',
                 'password': '111111'})
         user = MyUser.objects.get(cellphone='13888888888')
-        self.assertEqual(r.content, user.token)
+        r = json.loads(r.content)
+        self.assertEqual(r, {'token':user.token,'userid':user.id})
 
     def test_modify_password(self):
         r = self.client.post(
@@ -188,21 +194,23 @@ class SimpleTest(TestCase):
         self.assertEqual(r.content, json.dumps(True))
 
     def test_update_user_info(self):
-        token = self.client.post(
+        r = self.client.post(
             '/login',
             data={
                 'cellphone': '13888888888',
                 'password': '111111'}).content
+        token = json.loads(r)['token']
         data = json.dumps({'userid': 1, 'token': token, 'cname': 'li'})
         r = self.client.options('/update_user_info', data=data)
         self.assertEqual(r.content, json.dumps(True))
 
     def test_get_notifications(self):
-        token = self.client.post(
+        r = self.client.post(
             '/login',
             data={
                 'cellphone': '13888888888',
                 'password': '111111'}).content
+        token = json.loads(r)['token']
         data = json.dumps({'userid': 1, 'token': token})
         r = self.client.options('/get_notifications', data=data)
         self.assertEqual(json.loads(r.content)[0][0], 1)
@@ -213,11 +221,12 @@ class SimpleTest(TestCase):
             data={
                 'cellphone': '13666666666',
                 'password': '111111'})
-        token = self.client.post(
+        r = self.client.post(
             '/login',
             data={
                 'cellphone': '13888888888',
                 'password': '111111'}).content
+        token = json.loads(r)['token']
         data = json.dumps(
             {'userid': 1, 'token': token, 'target_cellphone': '13666666666'})
         r = self.client.options('/invite', data=data)
