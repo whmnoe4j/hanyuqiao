@@ -262,10 +262,27 @@ def get_favorites(request):
                         mimetype='text/json')
 
 
+@token_required
+@require_http_methods(["GET"])
+def get_competitionSubjects(request):
+    #since sqlite does not support distinct
+    subjects=Competition.objects.all().valuse_list('subject')
+    subjects=[e[0] for e in subjects]
+    return HttpResponse(json.dumps(subjects),
+                        mimetype='text/json')
+
+@token_required
 @require_http_methods(["GET"])
 def get_competitions(request):
-    competitions = Competition.objects.values()
-    competitions = list(competitions)
+    data = request.data
+    competitions = Competition.objects
+    if 'subject' in data:
+        competitions=competitions.filter(subject=data['subjects'])
+    if 'category' in data:
+        competitions=competitions.filter(category=data['category'])
+    else:
+        competitions=competitions.all()
+    competitions = list(competitions.values())
     return HttpResponse(json.dumps(competitions, default=default_json_dump),
                         mimetype='text/json')
 
