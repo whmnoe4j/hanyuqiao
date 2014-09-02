@@ -81,12 +81,7 @@ def get_user_by_uid_or_create(request, uid):
         return HttpResponse(json.dumps({'errormsg': errormsg}),
                             mimetype='text/json')
 
-    if 'cellphone' not in data:
-        errormsg = u'没有传递手机号码'
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-    else:
-        cellphone = data['cellphone']
+    cellphone = data.get('cellphone','')
     try:
         myuser = MyUser.objects.get(uid=uid)
         userid = myuser.id
@@ -95,11 +90,7 @@ def get_user_by_uid_or_create(request, uid):
             json.dumps({'token': token, 'userid': userid, 'created': False}),
             mimetype="text/json")
     except MyUser.DoesNotExist:
-        if MyUser.objects.filter(cellphone=cellphone).exists():
-            errormsg = u'手机号码已存在'
-            return HttpResponse(json.dumps({'errormsg': errormsg}),
-                                mimetype='text/json')
-        user = User.objects.create_user(username=cellphone, password='default')
+        user = User.objects.create_user(username=uid, password='default')
         user.save()
         myuser = MyUser(user=user, uid=uid, cellphone=cellphone)
         token = str(random.random())[2:]+str(random.random())[2:]
