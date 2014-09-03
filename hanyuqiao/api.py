@@ -65,14 +65,14 @@ def if_introduction_exist(request, version):
         mimetype="text/json")
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def newest_version(request):
     return HttpResponse(
         Version.objects.order_by('-version')[0].version,
         mimetype="text/json")
 
 
-@require_http_methods(["POST", 'OPTIONS'])
+@require_http_methods(["POST"])
 def get_user_by_uid_or_create(request, uid):
     try:
         data = json.loads(request.body)
@@ -102,7 +102,7 @@ def get_user_by_uid_or_create(request, uid):
             mimetype="text/json")
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def get_language_list(request):
     r = Language.objects.values('id', 'name')
     return HttpResponse(
@@ -111,7 +111,7 @@ def get_language_list(request):
 
 
 @token_required
-@require_http_methods(["POST", 'OPTIONS'])
+@require_http_methods(["POST"])
 def set_language(request):
     data = request.data
     user = request.user
@@ -136,7 +136,7 @@ def set_language(request):
     return HttpResponse(json.dumps(True), mimetype='text/json')
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def translate(request, messageid, languageid):
     try:
         language = Language.objects.get(id=languageid)
@@ -165,14 +165,14 @@ def translate(request, messageid, languageid):
 
 
 @token_required
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def get_subjects(request):
     subjects = MessageSubject.objects.all().value_lists('title')
     return HttpResponse(json.dumps(subjects), mimetype='text/json')
 
 
 @token_required
-@require_http_methods(["GET", 'OPTIONS'])
+@require_http_methods(["POST"])
 def get_messages(request):
     data = request.data
     user = request.user
@@ -207,7 +207,7 @@ def get_messages(request):
                         mimetype='text/json')
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def get_message(request, messageid):
     mc = MessageContent.objects.filter(id=messageid)
     if not mc.exists():
@@ -224,7 +224,7 @@ def get_message(request, messageid):
 
 
 @token_required
-@require_http_methods(["POST", 'OPTIONS'])
+@require_http_methods(["POST"])
 def set_favorite(request):
     data = request.data
     user = request.user
@@ -243,7 +243,7 @@ def set_favorite(request):
 
 
 @token_required
-@require_http_methods(["GET", 'OPTIONS'])
+@require_http_methods(["POST"])
 def get_favorites(request):
     user = request.user
     language = user.language
@@ -262,7 +262,7 @@ def get_favorites(request):
 
 
 @token_required
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def get_competitionSubjects(request):
     #since sqlite does not support distinct
     subjects=Competition.objects.all().valuse_list('subject')
@@ -271,7 +271,7 @@ def get_competitionSubjects(request):
                         mimetype='text/json')
 
 @token_required
-@require_http_methods(["GET","OPTIONS"])
+@require_http_methods(["POST"])
 def get_competitions(request):
     data = request.data
     competitions = Competition.objects
@@ -286,7 +286,7 @@ def get_competitions(request):
                         mimetype='text/json')
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def get_players(request, competitionid):
     players = Player.objects.filter(competition=competitionid).values()
     players = list(players)
@@ -318,7 +318,7 @@ def search_players(request):
 
 
 @token_required
-@require_http_methods(["POST", 'OPTIONS'])
+@require_http_methods(["POST"])
 def vote(request):
     data = request.data
     user = request.user
@@ -349,7 +349,7 @@ def vote(request):
                         mimetype='text/json')
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def get_user(request, userid):
     user = MyUser.objects.filter(id=userid)
     if user.count() == 1:
@@ -391,7 +391,7 @@ def register(request):
                         mimetype='text/json')
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def if_cellphone_exist(request, cellphone):
     exist = MyUser.objects.filter(cellphone=cellphone).exists()
     return HttpResponse(json.dumps(exist),
@@ -463,7 +463,7 @@ def modify_password(request):
 
 
 @token_required
-@require_http_methods(["POST", 'OPTIONS'])
+@require_http_methods(["POST"])
 def update_user_info(request):
     data = request.data
     user = request.user
@@ -483,7 +483,7 @@ def update_user_info(request):
 
 
 @token_required
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def get_friends_list(request):
     user = request.user
     friends = list(user.friends.values())
@@ -541,7 +541,7 @@ def get_notification(request):
 
 
 @token_required
-@require_http_methods(["POST", 'OPTIONS'])
+@require_http_methods(["POST"])
 def invite(request):
     data = request.data
     user = request.user
