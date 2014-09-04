@@ -167,7 +167,8 @@ def translate(request, messageid, languageid):
 @token_required
 @require_http_methods(["POST"])
 def get_subjects(request):
-    subjects = MessageSubject.objects.all().value_lists('title')
+    subjects = MessageSubject.objects.all().values_list('title')
+    subjects = [e[0] for e in subjects]
     return HttpResponse(json.dumps(subjects), mimetype='text/json')
 
 
@@ -265,7 +266,7 @@ def get_favorites(request):
 @require_http_methods(["POST"])
 def get_competitionSubjects(request):
     #since sqlite does not support distinct
-    subjects=Competition.objects.all().valuse_list('subject')
+    subjects=Competition.objects.all().values_list('subject')
     subjects=[e[0] for e in subjects]
     return HttpResponse(json.dumps(subjects),
                         mimetype='text/json')
