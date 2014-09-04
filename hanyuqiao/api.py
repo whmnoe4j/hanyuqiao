@@ -277,7 +277,7 @@ def get_competitions(request):
     data = request.data
     competitions = Competition.objects
     if 'subject' in data:
-        competitions=competitions.filter(subject=data['subjects'])
+        competitions=competitions.filter(subject=data['subject'])
     if 'category' in data:
         competitions=competitions.filter(category=data['category'])
     else:
