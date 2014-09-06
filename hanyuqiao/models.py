@@ -61,7 +61,7 @@ class MyUser(models.Model):
     cname = models.CharField(max_length=32, null=True, blank=True)
     ename = models.CharField(max_length=256, null=True, blank=True)
     nick = models.CharField(max_length=32, null=True, blank=True)
-    uid = models.CharField(max_length=128, unique=True)
+    uid = models.CharField(max_length=128)
     gender = models.IntegerField(choices=GENDER, null=True, blank=True)
     city = models.CharField(max_length=64, null=True, blank=True)
     desc = models.CharField(max_length=2048, null=True, blank=True)
