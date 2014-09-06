@@ -267,7 +267,7 @@ def get_favorites(request):
 def get_competitionSubjects(request):
     #since sqlite does not support distinct
     subjects=Competition.objects.all().values_list('subject')
-    subjects = set([e[0] for e in subjects])
+    subjects = list(set([e[0] for e in subjects]))
     return HttpResponse(json.dumps(subjects),
                         mimetype='text/json')
 
