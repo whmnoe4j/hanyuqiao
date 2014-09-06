@@ -71,7 +71,7 @@ class MyUser(models.Model):
     university = models.CharField(max_length=256, null=True, blank=True)
     career = models.CharField(max_length=256, null=True, blank=True)
     installdate = models.DateTimeField(null=True, blank=True)
-    registerdate = models.DateTimeField(null=True, blank=True)
+    registerdate = models.DateTimeField(auto_now_add = True,null=True, blank=True)
     token = models.CharField(max_length=512, null=True, blank=True)
 
     def __unicode__(self):
