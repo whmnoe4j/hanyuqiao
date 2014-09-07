@@ -66,7 +66,7 @@ class MyUser(models.Model):
     city = models.CharField(max_length=64, null=True, blank=True)
     desc = models.CharField(max_length=2048, null=True, blank=True)
     email = models.EmailField(max_length=2048, null=True, blank=True)
-    cellphone = models.CharField(max_length=18)
+    cellphone = models.CharField(max_length=18,unique=True)
     country = models.CharField(max_length=256, null=True, blank=True)
     university = models.CharField(max_length=256, null=True, blank=True)
     career = models.CharField(max_length=256, null=True, blank=True)
