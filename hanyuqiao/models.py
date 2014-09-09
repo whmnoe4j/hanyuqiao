@@ -51,7 +51,7 @@ class MessageContent(models.Model):
     author = models.CharField(max_length=512)
     source = models.CharField(max_length=512)
     admin = models.CharField(max_length=512)
-    passed = models.BooleanField()
+    passed = models.BooleanField(default=False)
     text = models.TextField()
     postdate = models.DateTimeField(auto_now=True)
 
