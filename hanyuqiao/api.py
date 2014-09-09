@@ -173,7 +173,7 @@ def translate(request, messageid, languageid):
 @require_http_methods(["POST"])
 def get_subjects(request):
     subjects = MessageSubject.objects.all().values_list('title')
-    subjects = set([e[0] for e in subjects])
+    subjects = list(set([e[0] for e in subjects]))
     return HttpResponse(json.dumps(subjects), mimetype='text/json')
 
 
