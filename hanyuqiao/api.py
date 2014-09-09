@@ -77,11 +77,9 @@ def get_user_by_uid_or_create(request, uid):
     try:
         data = json.loads(request.body)
     except:
-        errormsg = u'参数传递错误'
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
+        data = {}
 
-    cellphone = data.get('cellphone','')
+    cellphone = data.get('cellphone',uid)
     try:
         myuser = MyUser.objects.get(uid=uid)
         userid = myuser.id
@@ -375,6 +373,12 @@ def register(request):
 
     try: # if tmp user exist
         myuser = MyUser.objects.get(uid=request.POST['uid'])
+        if myuser.cellphone != myuser.uid: # its a registered user
+            errormsg = 'uid is used by another user'
+            return HttpResponse(json.dumps({'errormsg': errormsg}),
+                            mimetype='text/json')
+
+
         myuser.cellphone = request.POST['cellphone']
         myuser.user.username = request.POST['cellphone']
         myuser.user.save()
