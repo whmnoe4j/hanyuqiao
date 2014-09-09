@@ -79,7 +79,9 @@ def get_user_by_uid_or_create(request, uid):
     except:
         data = {}
 
-    cellphone = data.get('cellphone',uid)
+    cellphone = data.get('cellphone',uid).strip()
+    if cellphone == '':
+        cellphone = uid
     try:
         myuser = MyUser.objects.get(uid=uid)
         userid = myuser.id
@@ -88,16 +90,21 @@ def get_user_by_uid_or_create(request, uid):
             json.dumps({'token': token, 'userid': userid, 'created': False}),
             mimetype="text/json")
     except MyUser.DoesNotExist:
-        user = User.objects.create_user(username=uid, password='default')
-        user.save()
-        myuser = MyUser(user=user, uid=uid, cellphone=cellphone)
-        token = str(random.random())[2:]+str(random.random())[2:]
-        myuser.token = token
-        myuser.save()
-        userid = myuser.id
-        return HttpResponse(
-            json.dumps({'token': token, 'userid': userid, 'created': True}),
-            mimetype="text/json")
+        try:
+            user = User.objects.create_user(username=uid, password='default')
+            user.save()
+            myuser = MyUser(user=user, uid=uid, cellphone=cellphone)
+            token = str(random.random())[2:]+str(random.random())[2:]
+            myuser.token = token
+            myuser.save()
+            userid = myuser.id
+            return HttpResponse(
+                json.dumps({'token': token, 'userid': userid, 'created': True}),
+                mimetype="text/json")
+        except Exception as e:
+            errormsg = str(e)
+            return HttpResponse(json.dumps({'errormsg': errormsg}),
+                                mimetype='text/json')
 
 
 @require_http_methods(["POST"])
