@@ -415,10 +415,13 @@ def register(request):
                             mimetype='text/json')
 
 
+@token_required
 @require_http_methods(["POST"])
-def if_cellphone_exist(request, cellphone):
-    exist = MyUser.objects.filter(cellphone=cellphone).exists()
-    return HttpResponse(json.dumps(exist),
+def if_cellphones_exist(request):
+    data = request.data
+    cellphones = data.get('cellphones',[])
+    users = MyUser.objects.filter(cellphone__in=cellphones).values()
+    return HttpResponse(json.dumps(list(users), default=default_json_dump),
                         mimetype='text/json')
 
 
