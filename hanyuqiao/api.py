@@ -79,7 +79,7 @@ def get_user_by_uid_or_create(request, uid):
     except:
         data = {}
 
-    cellphone = data.get('cellphone',uid).strip()
+    cellphone = data.get('cellphone', uid).strip()
     if cellphone == '':
         cellphone = uid
     try:
@@ -99,7 +99,8 @@ def get_user_by_uid_or_create(request, uid):
             myuser.save()
             userid = myuser.id
             return HttpResponse(
-                json.dumps({'token': token, 'userid': userid, 'created': True}),
+                json.dumps(
+                    {'token': token, 'userid': userid, 'created': True}),
                 mimetype="text/json")
         except Exception as e:
             errormsg = str(e)
@@ -184,8 +185,8 @@ def get_messages(request):
     user = request.user
     language = user.language
     subject = data.get('subject')
-    start = data.get('start',0)
-    count = data.get('count',10)
+    start = data.get('start', 0)
+    count = data.get('count', 10)
     if subject:
         try:
             ms = MessageSubject.objects.get(title=subject)
@@ -270,8 +271,8 @@ def get_favorites(request):
 @token_required
 @require_http_methods(["POST"])
 def get_competitionSubjects(request):
-    #since sqlite does not support distinct
-    subjects=Competition.objects.all().values_list('subject')
+    # since sqlite does not support distinct
+    subjects = Competition.objects.all().values_list('subject')
     subjects = list(set([e[0] for e in subjects]))
     return HttpResponse(json.dumps(subjects),
                         mimetype='text/json')
@@ -283,11 +284,11 @@ def get_competitions(request):
     data = request.data
     competitions = Competition.objects
     if 'subject' in data:
-        competitions=competitions.filter(subject=data['subject'])
+        competitions = competitions.filter(subject=data['subject'])
     if 'category' in data:
-        competitions=competitions.filter(category=data['category'])
+        competitions = competitions.filter(category=data['category'])
     else:
-        competitions=competitions.all()
+        competitions = competitions.all()
     competitions = list(competitions.values())
     return HttpResponse(json.dumps(competitions, default=default_json_dump),
                         mimetype='text/json')
@@ -371,20 +372,19 @@ def get_user(request, userid):
 
 @require_http_methods(["POST"])
 def register(request):
-    require_fields = ['cellphone', 'password','uid']
+    require_fields = ['cellphone', 'password', 'uid']
     for field in require_fields:
         if field not in request.POST:
             errormsg = u'没有传递%s' % field
             return HttpResponse(json.dumps({'errormsg': errormsg}),
                                 mimetype='text/json')
 
-    try: # if tmp user exist
+    try:  # if tmp user exist
         myuser = MyUser.objects.get(uid=request.POST['uid'])
-        if myuser.cellphone != myuser.uid: # its a registered user
+        if myuser.cellphone != myuser.uid:  # its a registered user
             errormsg = 'uid is used by another user'
             return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-
+                                mimetype='text/json')
 
         myuser.cellphone = request.POST['cellphone']
         myuser.user.username = request.POST['cellphone']
@@ -405,14 +405,14 @@ def register(request):
         except Exception as e:
             errormsg = str(e)
             return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
+                                mimetype='text/json')
 
         return HttpResponse(json.dumps(True),
                             mimetype='text/json')
-    except Exception as e: #other Exception
+    except Exception as e:  # other Exception
         errormsg = str(e)
         return HttpResponse(json.dumps({'errormsg': errormsg}),
-                        mimetype='text/json')
+                            mimetype='text/json')
 
 
 @require_http_methods(["POST"])
