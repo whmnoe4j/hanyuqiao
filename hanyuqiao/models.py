@@ -23,6 +23,7 @@ class MessageSubject(models.Model):
     class Meta:
         verbose_name = u'资讯主题'
 
+
 class Message(models.Model):
     messagesubject = models.ForeignKey(MessageSubject)
     def __unicode__(self):
@@ -34,10 +35,23 @@ class Message(models.Model):
         verbose_name = u'资讯'
 
 
+class Media(models.Model):
+    MEDIATYPE=(
+        (1,'图片'),
+        (2,'语音'),
+        (3,'视频'),
+    )
+    mediatype = models.IntegerField(choices=MEDIATYPE)
+    uri = models.CharField(max_length=1024)
+
 class MessageContent(models.Model):
     message = models.ForeignKey(Message)
     language = models.ForeignKey(Language)
     title = models.CharField(max_length=512)
+    author = models.CharField(max_length=512)
+    source = models.CharField(max_length=512)
+    admin = models.CharField(max_length=512)
+    passed = models.BooleanField()
     text = models.TextField()
     postdate = models.DateTimeField(auto_now=True)
 
@@ -61,7 +75,7 @@ class MyUser(models.Model):
     cname = models.CharField(max_length=32, null=True, blank=True)
     ename = models.CharField(max_length=256, null=True, blank=True)
     nick = models.CharField(max_length=32, null=True, blank=True)
-    uid = models.CharField(max_length=128)
+    uid = models.CharField(max_length=128, unique=True)
     gender = models.IntegerField(choices=GENDER, null=True, blank=True)
     city = models.CharField(max_length=64, null=True, blank=True)
     desc = models.CharField(max_length=2048, null=True, blank=True)
@@ -147,7 +161,6 @@ class Competition(models.Model):
         verbose_name = u'比赛'
 
 
-
 class Player(models.Model):
     GENDER = (
         (0, u'男'),
@@ -156,7 +169,7 @@ class Player(models.Model):
     competition = models.ForeignKey(Competition)
     votes = models.IntegerField(default=0)
     whovotes = models.ManyToManyField(MyUser, null=True, blank=True)
-    sn = models.IntegerField(unique=True)
+    sn = models.AutoField(unique=True, primary_key=True)
     cname = models.CharField(max_length=32, null=True, blank=True)
     ename = models.CharField(max_length=256, null=True, blank=True)
     weibo = models.CharField(max_length=128, null=True, blank=True)

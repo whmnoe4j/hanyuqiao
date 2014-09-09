@@ -271,6 +271,7 @@ def get_competitionSubjects(request):
     return HttpResponse(json.dumps(subjects),
                         mimetype='text/json')
 
+
 @token_required
 @require_http_methods(["POST"])
 def get_competitions(request):
@@ -365,30 +366,41 @@ def get_user(request, userid):
 
 @require_http_methods(["POST"])
 def register(request):
-    require_fields = ['cellphone', 'password']
+    require_fields = ['cellphone', 'password','uid']
     for field in require_fields:
         if field not in request.POST:
             errormsg = u'没有传递%s' % field
             return HttpResponse(json.dumps({'errormsg': errormsg}),
                                 mimetype='text/json')
 
-    try:
-        user = User(username=request.POST['cellphone'])
-        user.set_password(request.POST['password'])
-        user.save()
-
-        myuser = MyUser(user=user, cellphone=request.POST['cellphone'])
-        for k, v in request.POST.items():
-            if k in ['password', 'cellphone']:
-                continue
-            setattr(myuser, k, v)
+    try: # if tmp user exist
+        myuser = MyUser.objects.get(uid=request.POST['uid'])
+        myuser.cellphone = request.POST['cellphone']
+        myuser.user.username = request.POST['cellphone']
+        myuser.user.save()
         myuser.save()
-    except Exception as e:
-        errormsg = str(e)
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
+    except MyUser.DoesNotExist:
+        try:
+            user = User(username=request.POST['cellphone'])
+            user.set_password(request.POST['password'])
+            user.save()
+
+            myuser = MyUser(user=user, cellphone=request.POST['cellphone'])
+            for k, v in request.POST.items():
+                if k in ['password', 'cellphone']:
+                    continue
+                setattr(myuser, k, v)
+            myuser.save()
+        except Exception as e:
+            errormsg = str(e)
+            return HttpResponse(json.dumps({'errormsg': errormsg}),
                             mimetype='text/json')
 
-    return HttpResponse(json.dumps(True),
+        return HttpResponse(json.dumps(True),
+                            mimetype='text/json')
+    except Exception as e: #other Exception
+        errormsg = str(e)
+        return HttpResponse(json.dumps({'errormsg': errormsg}),
                         mimetype='text/json')
 
 
