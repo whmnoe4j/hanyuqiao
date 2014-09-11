@@ -340,14 +340,14 @@ def vote(request):
     data = request.data
     user = request.user
 
-    if 'sid' not in data:
-        errormsg = u'没有传递sid'
+    if 'sn' not in data:
+        errormsg = u'没有传递sn'
         return HttpResponse(json.dumps({'errormsg': errormsg}),
                             mimetype='text/json')
     else:
-        sid = data['sid']
+        sn = data['sn']
     try:
-        player = Player.objects.get(sid=sid)
+        player = Player.objects.get(sn=sn)
     except Player.DoesNotExist:
         errormsg = u'选手不存在'
         return HttpResponse(json.dumps({'errormsg': errormsg}),
