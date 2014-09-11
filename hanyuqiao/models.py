@@ -35,15 +35,6 @@ class Message(models.Model):
         verbose_name = u'资讯'
 
 
-class Media(models.Model):
-    MEDIATYPE=(
-        (1,'图片'),
-        (2,'语音'),
-        (3,'视频'),
-    )
-    mediatype = models.IntegerField(choices=MEDIATYPE)
-    uri = models.CharField(max_length=1024)
-
 class MessageContent(models.Model):
     message = models.ForeignKey(Message)
     language = models.ForeignKey(Language)
@@ -60,6 +51,20 @@ class MessageContent(models.Model):
 
     class Meta:
         verbose_name = u'资讯内容(特定语言)'
+
+
+class Media(models.Model):
+    MEDIATYPE=(
+        (1,'图片'),
+        (2,'语音'),
+        (3,'视频'),
+    )
+    mediatype = models.IntegerField(choices=MEDIATYPE)
+    mediafile = models.FileField(upload_to='.')
+    message = models.ForeignKey(MessageContent)
+
+    def __unicode__(self):
+        return self.uri
 
 
 class MyUser(models.Model):
