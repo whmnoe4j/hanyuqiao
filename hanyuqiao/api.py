@@ -184,6 +184,11 @@ def get_messages(request):
     data = request.data
     user = request.user
     language = user.language
+    properties = data.get('properties', [
+           "language", "title", "author",
+          "source", "admin", "passed", "text", "postdate",
+    "medias"])
+
     subject = data.get('subject')
     start = data.get('start', 0)
     count = data.get('count', 10)
@@ -201,13 +206,17 @@ def get_messages(request):
 
     messagecontents = []
     for m in messages:
-        mc = m.messagecontent_set.filter(language=language)
-        if mc.count() > 0:
-            messagecontents.extend(list(mc.values()))
-        else:
-            _ = m.messagecontent_set.annotate(
-                min_index=Min('language__index')).values()
-            messagecontents.extend(_[:1])
+        mc_set = m.messagecontent_set
+        if mc_set.count() <= 0:
+            continue
+        the_mc = None
+        mc = mc_set.filter(language=language)
+        if mc.count() <= 0:
+            mc = m.messagecontent_set.annotate(
+                min_index=Min('language__index'))
+        the_mc = mc[0]
+        values = dict([(e,getattr(the_mc, e)) for e in properties])
+        messagecontents.append(values)
 
     messagecontents.sort(key=lambda e: e['postdate'])
     return HttpResponse(json.dumps(messagecontents, default=default_json_dump),
@@ -419,7 +428,7 @@ def register(request):
 @require_http_methods(["POST"])
 def if_cellphones_exist(request):
     data = request.data
-    cellphones = data.get('cellphones',[])
+    cellphones = data.get('cellphones', [])
     users = MyUser.objects.filter(cellphone__in=cellphones).values()
     return HttpResponse(json.dumps(list(users), default=default_json_dump),
                         mimetype='text/json')

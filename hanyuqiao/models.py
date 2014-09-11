@@ -49,6 +49,11 @@ class MessageContent(models.Model):
     def __unicode__(self):
         return self.title
 
+    @property
+    def medias(self):
+        print self.media_set.all().values()
+        return list(self.media_set.all().values())
+
     class Meta:
         verbose_name = u'资讯内容(特定语言)'
 
@@ -64,7 +69,7 @@ class Media(models.Model):
     message = models.ForeignKey(MessageContent)
 
     def __unicode__(self):
-        return self.uri
+        return u'%s' % self.mediafile
 
 
 class MyUser(models.Model):
