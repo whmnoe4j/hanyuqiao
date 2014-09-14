@@ -17,6 +17,7 @@ class Language(models.Model):
 
 class MessageSubject(models.Model):
     title = models.CharField(max_length=512)
+
     def __unicode__(self):
         return self.title
 
@@ -26,6 +27,7 @@ class MessageSubject(models.Model):
 
 class Message(models.Model):
     messagesubject = models.ForeignKey(MessageSubject)
+
     def __unicode__(self):
         if self.messagecontent_set.exists():
             return self.messagecontent_set.all()[0].title
@@ -59,13 +61,14 @@ class MessageContent(models.Model):
 
 
 class Media(models.Model):
-    MEDIATYPE=(
-        (1,'图片'),
-        (2,'语音'),
-        (3,'视频'),
+    MEDIATYPE = (
+        (1, '图片'),
+        (2, '语音'),
+        (3, '视频'),
     )
     mediatype = models.IntegerField(choices=MEDIATYPE)
-    mediafile = models.FileField(upload_to='.')
+    mediafile = models.FileField(upload_to='.', null=True, blank=True)
+    remotefile = models.CharField(max_length=1024, null=True, blank=True)
     message = models.ForeignKey(MessageContent)
 
     def __unicode__(self):
@@ -90,12 +93,15 @@ class MyUser(models.Model):
     city = models.CharField(max_length=64, null=True, blank=True)
     desc = models.CharField(max_length=2048, null=True, blank=True)
     email = models.EmailField(max_length=2048, null=True, blank=True)
-    cellphone = models.CharField(max_length=18,unique=True)
+    cellphone = models.CharField(max_length=18, unique=True)
     country = models.CharField(max_length=256, null=True, blank=True)
     university = models.CharField(max_length=256, null=True, blank=True)
     career = models.CharField(max_length=256, null=True, blank=True)
     installdate = models.DateTimeField(null=True, blank=True)
-    registerdate = models.DateTimeField(auto_now_add = True,null=True, blank=True)
+    registerdate = models.DateTimeField(
+        auto_now_add=True,
+        null=True,
+        blank=True)
     token = models.CharField(max_length=512, null=True, blank=True)
 
     def __unicode__(self):
@@ -151,7 +157,7 @@ class IntroductionImage(models.Model):
     pic = models.ImageField(upload_to='.')
 
     def __unicode__(self):
-        return '%s[%s]'%(self.introduction.version,self.pic.url)
+        return '%s[%s]' % (self.introduction.version, self.pic.url)
 
     class Meta:
         verbose_name = u'引导页图片'
@@ -208,4 +214,3 @@ class PlayerInfo(models.Model):
 
     class Meta:
         verbose_name = u'选手信息(特定语言)'
-
