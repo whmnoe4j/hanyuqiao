@@ -42,7 +42,7 @@ class MessageContent(models.Model):
     language = models.ForeignKey(Language)
     title = models.CharField(max_length=512)
     author = models.CharField(max_length=512)
-    source = models.CharField(max_length=512)
+    source = models.CharField(max_length=512,null=True,blank=True)
     admin = models.CharField(max_length=512)
     passed = models.BooleanField(default=False)
     text = models.TextField()
