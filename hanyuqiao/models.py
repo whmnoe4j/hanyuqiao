@@ -52,8 +52,11 @@ class MessageContent(models.Model):
         return self.title
 
     @property
+    def messageid(self):
+        return self.message.id
+
+    @property
     def medias(self):
-        print self.media_set.all().values()
         return list(self.media_set.all().values())
 
     class Meta:

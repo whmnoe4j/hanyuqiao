@@ -187,7 +187,7 @@ def get_messages(request):
     properties = data.get('properties', [
            "language", "title", "author",
           "source", "admin", "passed", "text", "postdate",
-    "medias"])
+    "medias","messageid"])
 
     subject = data.get('subject')
     start = data.get('start', 0)
