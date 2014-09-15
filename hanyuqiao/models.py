@@ -186,7 +186,7 @@ class Player(models.Model):
         (1, u'女'),
     )
     competition = models.ForeignKey(Competition)
-    votes = models.IntegerField(default=0)
+    isout = models.BooleanField(default=False)
     whovotes = models.ManyToManyField(MyUser, null=True, blank=True)
     sn = models.AutoField(unique=True, primary_key=True)
     cname = models.CharField(max_length=32, null=True, blank=True)

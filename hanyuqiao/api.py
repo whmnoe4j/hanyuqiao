@@ -356,12 +356,14 @@ def vote(request):
         return HttpResponse(json.dumps({'errormsg': errormsg}),
                             mimetype='text/json')
 
-    if user in player.whovotes.all():
+    competition = player.competition
+    whovotes = list(competition.player_set.filter(isout=False).values_list("whovotes"))
+    whovotes = [e[0] for e in whovotes if e[0]]
+    if user.id in whovotes:
         errormsg = u'已经投过票'
         return HttpResponse(json.dumps({'errormsg': errormsg}),
                             mimetype='text/json')
 
-    player.votes = player.votes + 1
     player.whovotes.add(user)
     player.save()
 
