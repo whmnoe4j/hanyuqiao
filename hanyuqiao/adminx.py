@@ -1,7 +1,7 @@
 #!encoding=utf-8
 from hanyuqiao.models import Version, IntroductionImage, Message, \
     MessageContent, Competition, Player, PlayerInfo, MyUser,Language, \
-    Notification, ExtraNotification,MessageSubject, Media
+    Notification, ExtraNotification,MessageSubject, LocalMedia,RemoteMedia
 import xadmin
 
 class ExtraNotificationInline(object):
@@ -20,14 +20,18 @@ class VersionAdmin(object):
     inlines = [IntroductionImageInline]
 
 
-class MediaInline(object):
-    model = Media
+class LocalMediaInline(object):
+    model = LocalMedia
     extra = 1
     style = 'accordion'
 
+class RemoteMediaInline(object):
+    model = RemoteMedia
+    extra = 1
+    style = 'accordion'
 
 class MessageContentAdmin(object):
-    inlines = [MediaInline]
+    inlines = [LocalMediaInline,RemoteMediaInline]
 
 
 class MessageContentInline(object):

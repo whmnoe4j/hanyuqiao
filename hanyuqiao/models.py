@@ -42,7 +42,7 @@ class MessageContent(models.Model):
     language = models.ForeignKey(Language)
     title = models.CharField(max_length=512)
     author = models.CharField(max_length=512)
-    source = models.CharField(max_length=512,null=True,blank=True)
+    source = models.CharField(max_length=512, null=True, blank=True)
     admin = models.CharField(max_length=512)
     passed = models.BooleanField(default=False)
     text = models.TextField()
@@ -57,20 +57,31 @@ class MessageContent(models.Model):
 
     @property
     def medias(self):
-        return list(self.media_set.all().values())
+        return list(self.localmedia_set.all().values()) + \
+            list(self.remotemedia_set.all().values())
 
     class Meta:
         verbose_name = u'资讯内容(特定语言)'
 
 
-class Media(models.Model):
+class LocalMedia(models.Model):
     MEDIATYPE = (
         (1, '图片'),
+    )
+    mediatype = models.IntegerField(choices=MEDIATYPE)
+    mediafile = models.FileField(upload_to='.', null=True, blank=True)
+    message = models.ForeignKey(MessageContent)
+
+    def __unicode__(self):
+        return u'%s' % self.mediafile
+
+
+class RemoteMedia(models.Model):
+    MEDIATYPE = (
         (2, '语音'),
         (3, '视频'),
     )
     mediatype = models.IntegerField(choices=MEDIATYPE)
-    mediafile = models.FileField(upload_to='.', null=True, blank=True)
     remotefile = models.CharField(max_length=1024, null=True, blank=True)
     message = models.ForeignKey(MessageContent)
 
