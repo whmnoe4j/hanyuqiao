@@ -189,7 +189,7 @@ class Player(models.Model):
     isout = models.BooleanField(default=False)
     whovotes = models.ManyToManyField(MyUser, null=True, blank=True)
     sn = models.AutoField(unique=True, primary_key=True)
-    cname = models.CharField(max_length=32, null=True, blank=True)
+    cname = models.CharField(max_length=32)
     ename = models.CharField(max_length=256, null=True, blank=True)
     weibo = models.CharField(max_length=128, null=True, blank=True)
     qq = models.CharField(max_length=16, null=True, blank=True)
