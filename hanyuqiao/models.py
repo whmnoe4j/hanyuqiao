@@ -86,7 +86,7 @@ class RemoteMedia(models.Model):
     message = models.ForeignKey(MessageContent)
 
     def __unicode__(self):
-        return u'%s' % self.mediafile
+        return u'%s' % self.remotefile
 
 
 class MyUser(models.Model):
