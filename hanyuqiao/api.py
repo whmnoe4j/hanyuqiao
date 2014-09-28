@@ -333,6 +333,7 @@ def search_players(request):
     for p in players:
         player = Player.objects.get(sn=p['sn'])
         p['whovotes']=list(player.whovotes.all().values())
+        p['info']=list(player.playerinfo_set.values())
     return HttpResponse(json.dumps(players, default=default_json_dump),
                         mimetype='text/json')
 
