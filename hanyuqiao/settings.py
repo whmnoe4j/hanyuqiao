@@ -1,7 +1,9 @@
 # Django settings for hanyuqiao project.
-
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+AUTH_USER_MODEL = 'appuser.MyUser'
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -50,7 +52,7 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = '/Users/liujia/Projects/hanyuqiao/media'
+MEDIA_ROOT = os.path.join(BASE_DIR , 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -98,8 +100,8 @@ MIDDLEWARE_CLASSES = (
     #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+   
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 ROOT_URLCONF = 'hanyuqiao.urls'
@@ -124,9 +126,12 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'rest_framework',
+    'appuser',
     'hanyuqiao',
-    'xadmin',
-    'crispy_forms',
+    
+    'message',
+    'competition',
 )
 
 # A sample logging configuration. The only tangible logging

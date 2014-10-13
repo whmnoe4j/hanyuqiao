@@ -1,125 +1,149 @@
 # -*- coding: utf-8 -*-
-
-from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.http import HttpResponse,Http404
 from django.db.models import Q, Min
 from django.views.decorators.http import require_http_methods
-from hanyuqiao.models import Version, Notification, ExtraNotification,\
-    MessageSubject, Message, MessageContent, Competition, \
-    Player, MyUser, Language
+from django.contrib.auth import authenticate, login, logout
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated,AllowAny
+
+from hanyuqiao.models import Version,IntroductionImage
+from message.models import MessageSubject, Message, MessageContent,Language
+from appuser.models import MyUser,MyUserToken,Notification, ExtraNotification
+from competition.models import Competition, Player
 import json
 import random
 import datetime
+from django.core.files.base import ContentFile
 
+class UnsafeSessionAuthentication(SessionAuthentication):
 
-def token_required(func):
-    def inner(request, *args, **kwargs):
-        try:
-            data = json.loads(request.body)
-        except:
-            errormsg = u'参数传递错误'
-            return HttpResponse(json.dumps({'errormsg': errormsg}),
-                                mimetype='text/json')
+    def authenticate(self, request):
+        http_request = request._request
+        user = getattr(http_request, 'user', None)
 
-        if 'userid' not in data:
-            errormsg = u'没有传递userid'
-            return HttpResponse(json.dumps({'errormsg': errormsg}),
-                                mimetype='text/json')
-        else:
-            userid = data['userid']
+        if not user or not user.is_active:
+           return None
 
-        if 'token' not in data:
-            errormsg = u'没有传递token'
-            return HttpResponse(json.dumps({'errormsg': errormsg}),
-                                mimetype='text/json')
-
-        try:
-            user = MyUser.objects.get(id=userid)
-        except MyUser.DoesNotExist:
-            errormsg = u'用户不存在'
-            return HttpResponse(json.dumps({'errormsg': errormsg}),
-                                mimetype='text/json')
-
-        if data['token'] != user.token:
-            errormsg = u'token错误'
-            return HttpResponse(json.dumps({'errormsg': errormsg}),
-                                mimetype='text/json')
-        request.data = data
-        request.user = user
-        return func(request, *args, **kwargs)
-    return inner
-
+        return (user, None)
 
 def default_json_dump(obj):
 
     if isinstance(obj, datetime.date):
         return obj.isoformat()
     if isinstance(obj, datetime.datetime):
-        return obj.isoformat()
+        return obj.strftime('%Y-%m-%d:%H:%M:%S')
 
 
 def if_introduction_exist(request, version):
     return HttpResponse(
         json.dumps(
             Version.objects.filter(version=version).exists()),
-        mimetype="text/json")
+        content_type="text/json")
 
 
 @require_http_methods(["POST"])
 def newest_version(request):
     return HttpResponse(
         Version.objects.order_by('-version')[0].version,
-        mimetype="text/json")
+        content_type="text/json")
 
 
-@require_http_methods(["POST"])
-def get_user_by_uid_or_create(request, uid):
-    try:
-        data = json.loads(request.body)
-    except:
-        data = {}
-
-    cellphone = data.get('cellphone', uid).strip()
-    if cellphone == '':
-        cellphone = uid
-    try:
-        myuser = MyUser.objects.get(uid=uid)
-        userid = myuser.id
-        token = myuser.token
-        return HttpResponse(
-            json.dumps({'token': token, 'userid': userid, 'created': False}),
-            mimetype="text/json")
-    except MyUser.DoesNotExist:
+class Reg(APIView):
+    authentication_classes = (UnsafeSessionAuthentication,)
+    permission_classes = (AllowAny,)
+    def post(self, request, format=None):
         try:
-            user = User.objects.create_user(username=uid, password='default')
-            user.save()
-            myuser = MyUser(user=user, uid=uid, cellphone=cellphone)
-            token = str(random.random())[2:]+str(random.random())[2:]
-            myuser.token = token
-            myuser.save()
-            userid = myuser.id
-            return HttpResponse(
-                json.dumps(
-                    {'token': token, 'userid': userid, 'created': True}),
-                mimetype="text/json")
-        except Exception as e:
-            errormsg = str(e)
-            return HttpResponse(json.dumps({'errormsg': errormsg}),
-                                mimetype='text/json')
+            data=json.loads(request.body)
+        except:
+            return Response({'success':False,'err_msg':'empty data'})
+        abroad=data.get('abroad','')
+        phone=data.get('phone','').strip()
+        email=data.get('email','').strip()
+        pw=data.get('password','').strip()
+        token=data.get('token','').strip()
+        if abroad=='0' or abroad==0: 
+            try:
+                usertoken=MyUserToken.objects.get(phone=phone)
+                if usertoken.token==token:               
+                    if phone and pw:
+                        if MyUser.objects.filter(cellphone=phone).exists():
+                            data={'success':False,'err_msg':'phone number was used'}
+                        else:
+                            user=MyUser.objects.create_user(cellphone=phone,password=pw)
+                            user.abroad=0
+                            user.save()
+                            user=authenticate(cellphone=phone,password=pw)
+                            login(request,user)
+                            data={'success':True,'phone':phone}
+                    else:
+                        data={'success':False,'err_msg':'empty password'}
+                else:
+                    data={'success':False,'err_msg':u'2'}
+         
+            except:
+                data={'success':False,'err_msg':u'wrong'}
+        else:          
+            if email and pw:
+                if MyUser.objects.filter(email=email).exists():
+                    data={'success':False,'err_msg':'email was used'}
+                else:
+                    user=MyUser.objects.create_user(cellphone=email,password=pw)
+                    user.abroad=1
+                    user.email=email
+                    user.save()
+                    user=authenticate(cellphone=email,password=pw)
+                    login(request,user)
+                    data={'success':True,'email':email}
+            else:
+                 data={'success':False,'err_msg':'empty password or email'}
+        return Response(data)
+                
+class Login(APIView):
+    authentication_classes = (UnsafeSessionAuthentication,)
+    permission_classes = (AllowAny,)
+    def post(self, request, format=None):
+        try:
+             body=json.loads(request.body)
+        except:
+            return Response({'success':False,'err_msg':'empty data'})
+        phone=body.get('phoneoremail','').strip()
+        pw=body.get('password','').strip()
+        if phone and pw:
+            user=authenticate(cellphone=phone,password=pw)
+            if user is not None:
+                if user.is_active:
+                    login(request,user)
+                    data={'success':True,'phoneoremail':phone}
+                else:
+                    data={'success':False,'err_msg':'user is disabled'}
+            elif MyUser.objects.filter(phoneNumber=phone).exists():
+                data={'success':False,'err_msg':'wrong password'}
+            else:
+                data={'success':False,'err_msg':'phone number not register'}
+        else:
+            data={'success':False,'err_msg':'empty phone or password'}
+        return Response(data)
 
 
-@require_http_methods(["POST"])
+@require_http_methods(["GET"])
 def get_language_list(request):
     r = Language.objects.values('id', 'name')
     return HttpResponse(
         json.dumps(list(r)),
-        mimetype="text/json")
+        content_type="text/json")
 
 
-@token_required
+
 @require_http_methods(["POST"])
 def set_language(request):
-    data = request.data
+    try:
+        data = json.loads(request.body)
+    except:
+        raise Http404
     user = request.user
 
     if 'languageid' not in data:
@@ -130,22 +154,24 @@ def set_language(request):
         languageid = data['languageid']
 
     try:
-        language = Language.objects.get(id=languageid)
+        language = Language.objects.get(id=int(languageid))
     except Language.DoesNotExist:
         errormsg = u'语言不存在'
         return HttpResponse(json.dumps({'errormsg': errormsg}),
                             mimetype='text/json')
+    if user.is_authenticated():
+        user.language = language
+        user.save()
+    else:
+        return HttpResponse(json.dumps('未登录'), content_type='text/json')
 
-    user.language = language
-    user.save()
-
-    return HttpResponse(json.dumps(True), mimetype='text/json')
+    return HttpResponse(json.dumps(True), content_type='text/json')
 
 
 @require_http_methods(["POST"])
 def translate(request, messageid, languageid):
     try:
-        language = Language.objects.get(id=languageid)
+        language = Language.objects.get(id=int(languageid))
     except Language.DoesNotExist:
         errormsg = u'语言不存在'
         return HttpResponse(json.dumps({'errormsg': errormsg}),
@@ -156,32 +182,31 @@ def translate(request, messageid, languageid):
     except Message.DoesNotExist:
         errormsg = u'资讯不存在'
         return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
+                            content_type='text/json')
 
     try:
         messagecontent = message.messagecontent_set.get(language=language)
     except:
         errormsg = u'资讯没有此类语言'
         return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
+                            content_type='text/json')
 
     return HttpResponse(json.dumps({'title': messagecontent.title,
                                     'text': messagecontent.text}),
-                        mimetype='text/json')
+                        content_type='text/json')
 
 
-@token_required
-@require_http_methods(["POST"])
+@require_http_methods(["POST",'GET'])
 def get_subjects(request):
-    subjects = MessageSubject.objects.all().values_list('title')
-    subjects = list(set([e[0] for e in subjects]))
-    return HttpResponse(json.dumps(subjects), mimetype='text/json')
+    subjects = MessageSubject.objects.all().values('id','title')
+    subjects = list(subjects)
+    return HttpResponse(json.dumps(subjects), content_type='text/json')
 
 
-@token_required
+
 @require_http_methods(["POST"])
 def get_messages(request):
-    data = request.data
+    data = json.loads(request.body)
     user = request.user
     language = user.language
     properties = data.get('properties', [
@@ -221,49 +246,88 @@ def get_messages(request):
     messagecontents.sort(key=lambda e: e['postdate'])
     return HttpResponse(json.dumps(messagecontents, default=default_json_dump),
                         mimetype='text/json')
+class GetMessages(APIView):
+    authentication_classes = (UnsafeSessionAuthentication,)
+    permission_classes = (AllowAny,)
+    def get_object(self, pk):
+        try:
+            return MessageSubject.objects.get(pk=pk)
+        except MessageSubject.DoesNotExist:
+            raise Http404
+    def post(self, request, format=None):
+        try:
+            data = json.loads(request.body)
+        except:
+            raise Http404
+        user = request.user
+        if user.is_authenticated and user.language:
+            language = user.language
+        else:
+            language=Language.objects.order_by('index')[0]
+        subject = int(data.get('id',0))
+        start = int(data.get('start', 0))
+        count = int(data.get('count', 8))
+        if subject==0:
+            messages = Message.objects.order_by('-postdate')[start:start+count]
+        else:
+            ms=self.get_object(subject)
+            messages = ms.message_set.order_by('-postdate')[start:start+count]
+        ms=[]
+        for m in messages:
+            if m.messagecontent_set.filter(language=language).exists():
+                ms.append(m.messagecontent_set.get(language=language))
+            else:
+                ms.append(m.messagecontent_set.order_by('language__index')[0])
+        data=[]
+        for m in ms:
+            data.append({'id':m.id,'title':m.title,'text':m.text})
+        return Response(data)
 
 
 @require_http_methods(["POST"])
 def get_message(request, messageid):
-    mc = MessageContent.objects.filter(id=messageid)
+    mc = MessageContent.objects.filter(id=int(messageid))
     if not mc.exists():
         errormsg = u'资讯不存在'
         return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-
-    return HttpResponse(
-        json.dumps(
-            list(
-                mc.values()),
-            default=default_json_dump),
-        mimetype='text/json')
+                            content_type='text/json')
+    data=list(mc.values())
+    data[0]['pubDate']=data[0]['pubDate'].strftime('%Y-%m-%d:%H:%M:%S')
+    data[0]['postdate']=data[0]['postdate'].strftime('%Y-%m-%d:%H:%M:%S')
+    print data
+    return HttpResponse(json.dumps(data),content_type='text/json')
 
 
-@token_required
+
 @require_http_methods(["POST"])
 def set_favorite(request):
-    data = request.data
+    try:
+        data = json.loads(request.body)
+    except:
+        raise Http404
     user = request.user
-
     messageid = data.get('messageid', -1)
     try:
-        message = Message.objects.get(id=messageid)
+        message = Message.objects.get(id=int(messageid))
     except Message.DoesNotExist:
         errormsg = u'资讯不存在'
         return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
+                            content_type='text/json')
+    if user.is_authenticated:
+        user.favorites.add(message)
+        user.save()
+        return HttpResponse(json.dumps(True), content_type='text/json')
+    else:
+        return HttpResponse(json.dumps('not login'), content_type='text/json')
+        
 
-    user.favorites.add(message)
-
-    return HttpResponse(json.dumps(True), mimetype='text/json')
-
-
-@token_required
 @require_http_methods(["POST"])
 def get_favorites(request):
+    if not request.user.is_authenticated:
+        return HttpResponse(json.dumps('not login'),
+                        content_type='text/json')        
     user = request.user
     language = user.language
-
     r = []
     for m in user.favorites.all():
         r.extend(
@@ -274,23 +338,26 @@ def get_favorites(request):
                     'title')))
 
     return HttpResponse(json.dumps(r),
-                        mimetype='text/json')
+                        content_type='text/json')
 
 
-@token_required
+
 @require_http_methods(["POST"])
 def get_competitionSubjects(request):
     # since sqlite does not support distinct
     subjects = Competition.objects.all().values_list('subject')
     subjects = list(set([e[0] for e in subjects]))
     return HttpResponse(json.dumps(subjects),
-                        mimetype='text/json')
+                        content_type='text/json')
 
 
-@token_required
+
 @require_http_methods(["POST"])
 def get_competitions(request):
-    data = request.data
+    try:
+        data = json.loads(request.body)
+    except:
+        raise Http404
     competitions = Competition.objects
     if 'subject' in data:
         competitions = competitions.filter(subject=data['subject'])
@@ -302,16 +369,34 @@ def get_competitions(request):
     return HttpResponse(json.dumps(competitions, default=default_json_dump),
                         mimetype='text/json')
 
-
-@require_http_methods(["POST"])
-def get_players(request, competitionid):
-    players = Player.objects.filter(competition=competitionid).values()
-    players = list(players)
-    return HttpResponse(json.dumps(players, default=default_json_dump),
-                        mimetype='text/json')
-
-
-@token_required
+class GetPlayers(APIView):
+    authentication_classes = (UnsafeSessionAuthentication,)
+    permission_classes = (AllowAny,)
+    def get_object(self, pk):
+        try:
+            return Competition.objects.get(pk=pk)
+        except Competition.DoesNotExist:
+            raise Http404
+    def post(self, request,cpk,apk,page, format=None):
+        cpk=int(cpk)
+        apk=int(apk)
+        page=int(page)
+        c=self.get_object(cpk)
+        players= Player.objects.filter(competition=c,isout=False)
+        canvote=True
+        votemanid=None
+        if request.user.is_authenticated: 
+            for p in players:
+                if p.whovotes.filter(id=request.user.id).exists():
+                    canvote=False
+                    votemanid=p.id
+                    break
+        start=(page-1)*10
+        end=start+10
+        players= Player.objects.filter(competition=c,area=apk).order_by('sn').values()[start:end]
+        data={'canvote':canvote,'votedplayerid':votemanid,'players':players}
+        return Response(data)
+        
 def search_players(request):
     try:
         data = json.loads(request.body)
@@ -338,7 +423,7 @@ def search_players(request):
                         mimetype='text/json')
 
 
-@token_required
+
 @require_http_methods(["POST"])
 def vote(request):
     data = request.data
@@ -370,7 +455,33 @@ def vote(request):
 
     return HttpResponse(json.dumps(True),
                         mimetype='text/json')
-
+class Vote(APIView):
+    authentication_classes = (UnsafeSessionAuthentication,BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+    def get_object(self, pk):
+        try:
+            return Player.objects.get(id=pk)
+        except Player.DoesNotExist:
+            raise Http404
+    def post(self, request, format=None):
+        try:
+            data = json.loads(request.body)
+        except:
+            raise Http404
+        pk=data.get('playerid','')
+        if pk:
+            player=self.get_object(int(pk))
+        else:
+            return Response('empty player index')
+        
+        players=player.competition.player_set.filter(isout=False)
+        for p in players:
+            if p.whovotes.filter(id=request.user.id).exists():
+                return Response('can not vote because have voted')
+        player.whovotes.add(request.user)
+        player.votenum+=1
+        player.save()
+        return Response(True)
 
 @require_http_methods(["POST"])
 def get_user(request, userid):
@@ -385,90 +496,23 @@ def get_user(request, userid):
                             mimetype='text/json')
 
 
-@require_http_methods(["POST"])
-def register(request):
-    require_fields = ['cellphone', 'password', 'uid']
-    for field in require_fields:
-        if field not in request.POST:
-            errormsg = u'没有传递%s' % field
-            return HttpResponse(json.dumps({'errormsg': errormsg}),
-                                mimetype='text/json')
-
-    try:  # if tmp user exist
-        myuser = MyUser.objects.get(uid=request.POST['uid'])
-        if myuser.cellphone != myuser.uid:  # its a registered user
-            errormsg = 'uid is used by another user'
-            return HttpResponse(json.dumps({'errormsg': errormsg}),
-                                mimetype='text/json')
-
-        myuser.cellphone = request.POST['cellphone']
-        myuser.user.username = request.POST['cellphone']
-        myuser.user.save()
-        myuser.save()
-    except MyUser.DoesNotExist:
-        try:
-            user = User(username=request.POST['cellphone'])
-            user.set_password(request.POST['password'])
-            user.save()
-
-            myuser = MyUser(user=user, cellphone=request.POST['cellphone'])
-            for k, v in request.POST.items():
-                if k in ['password', 'cellphone']:
-                    continue
-                setattr(myuser, k, v)
-            myuser.save()
-        except Exception as e:
-            errormsg = str(e)
-            return HttpResponse(json.dumps({'errormsg': errormsg}),
-                                mimetype='text/json')
-
-        return HttpResponse(json.dumps(True),
-                            mimetype='text/json')
-    except Exception as e:  # other Exception
-        errormsg = str(e)
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
 
 
-@token_required
+
+
 @require_http_methods(["POST"])
 def if_cellphones_exist(request):
-    data = request.data
+    try:
+        data = json.loads(request.body)
+    except:
+        raise Http404
     cellphones = data.get('cellphones', [])
     users = MyUser.objects.filter(cellphone__in=cellphones).values()
     return HttpResponse(json.dumps(list(users), default=default_json_dump),
                         mimetype='text/json')
 
 
-@require_http_methods(["POST"])
-def login(request):
-    require_fields = ['cellphone', 'password']
-    for field in require_fields:
-        if field not in request.POST:
-            errormsg = u'没有传递%s' % field
-            return HttpResponse(json.dumps({'errormsg': errormsg}),
-                                mimetype='text/json')
-    cellphone = request.POST["cellphone"]
-    password = request.POST["password"]
 
-    try:
-        myuser = MyUser.objects.get(cellphone=cellphone)
-    except MyUser.DoesNotExist:
-        errormsg = u'用户名密码不匹配'
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-
-    if myuser.user.check_password(password) is False:
-        errormsg = u'用户名密码不匹配'
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-
-    myuser.token = str(random.random())[2:]+str(random.random())[2:]
-    myuser.save()
-
-    return HttpResponse(
-        json.dumps({'token': myuser.token, 'userid': myuser.id}),
-        mimetype="text/json")
 
 
 @require_http_methods(["POST"])
@@ -504,10 +548,13 @@ def modify_password(request):
                         mimetype='text/json')
 
 
-@token_required
+
 @require_http_methods(["POST"])
 def update_user_info(request):
-    data = request.data
+    try:
+        data = json.loads(request.body)
+    except:
+        raise Http404
     user = request.user
     try:
         for k, v in data.items():
@@ -524,7 +571,7 @@ def update_user_info(request):
                         mimetype='text/json')
 
 
-@token_required
+
 @require_http_methods(["POST"])
 def get_friends_list(request):
     user = request.user
@@ -534,9 +581,12 @@ def get_friends_list(request):
         mimetype='text/json')
 
 
-@token_required
+
 def get_notifications(request):
-    data = request.data
+    try:
+        data = json.loads(request.body)
+    except:
+        raise Http404
     user = request.user
     not_read = data.get('not_read', False)
     cnt = data.get('cnt', 20)
@@ -555,9 +605,12 @@ def get_notifications(request):
                         mimetype='text/json')
 
 
-@token_required
+
 def get_notification(request):
-    data = request.data
+    try:
+        data = json.loads(request.body)
+    except:
+        raise Http404
     # notificationid is really extra_notificationid
     if 'notificationid' not in data:
         errormsg = u'没有传递notificationid'
@@ -582,10 +635,13 @@ def get_notification(request):
     return HttpResponse(json.dumps(r), mimetype='text/json')
 
 
-@token_required
+
 @require_http_methods(["POST"])
 def invite(request):
-    data = request.data
+    try:
+        data = json.loads(request.body)
+    except:
+        raise Http404
     user = request.user
     if 'target_cellphone' not in data:
         errormsg = u'没有传递target_cellphone'
@@ -614,9 +670,12 @@ def invite(request):
     return HttpResponse(json.dumps(True), mimetype='text/json')
 
 
-@token_required
+
 def pass_invite(request):
-    data = request.data
+    try:
+        data = json.loads(request.body)
+    except:
+        raise Http404
     user = request.user
 
     if 'target_cellphone' not in data:
@@ -646,9 +705,12 @@ def pass_invite(request):
     return HttpResponse(json.dumps(True), mimetype='text/json')
 
 
-@token_required
+
 def deny_invite(request):
-    data = request.data
+    try:
+        data = json.loads(request.body)
+    except:
+        raise Http404
     user = request.user
 
     if 'target_cellphone' not in data:
