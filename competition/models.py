@@ -3,14 +3,16 @@ from django.db import models
 from hanyuqiao import settings
 from message.models import Language
 class Competition(models.Model):
-    subject = models.CharField(max_length=512,verbose_name = u'主题')
-    category = models.CharField(max_length=512,verbose_name = u'类型')
-    title = models.CharField(max_length=512,verbose_name = u'标题')
+
+    title = models.CharField(max_length=512,verbose_name = u'比赛名称')
+    subject = models.CharField(max_length=512,verbose_name = u'投票主题')
+    pic= models.ImageField(upload_to='competition', verbose_name = u'图片',null=True,blank=True)
+    canvote=models.BooleanField(default=True,verbose_name = u'是否可投票')
+    pubDate = models.DateTimeField(auto_now_add=True)
     startdate = models.DateField(verbose_name = u'开始日期')
     enddate = models.DateField(verbose_name = u'截止日期')
-
     def __unicode__(self):
-        return u'[%s]%s' % (self.subject, self.title)
+        return self.title
 
     class Meta:
         verbose_name = u'比赛'
@@ -49,7 +51,8 @@ class Player(models.Model):
     ci = models.CharField(max_length=256,verbose_name = u'推荐孔院', null=True, blank=True)
     tutor = models.CharField(max_length=256, verbose_name = u'指导教师',null=True, blank=True)
     area = models.IntegerField(choices=AREAS,verbose_name = u'赛区', null=True, blank=True)
-
+    interist = models.TextField(verbose_name = u'兴趣',null=True, blank=True)
+    desc = models.TextField(verbose_name = u'介绍',null=True, blank=True)
 
     def __unicode__(self):
         return self.cname
@@ -59,12 +62,3 @@ class Player(models.Model):
         verbose_name_plural = "比赛选手"
 
 
-class PlayerInfo(models.Model):
-    player = models.ForeignKey(Player,verbose_name = u'选手')
-    language = models.ForeignKey(Language,verbose_name = u'语言')
-    interist = models.TextField(verbose_name = u'兴趣',null=True, blank=True)
-    desc = models.TextField(verbose_name = u'介绍',null=True, blank=True)
-
-    class Meta:
-        verbose_name = u'选手信息(特定语言)'
-        verbose_name_plural = "选手信息(特定语言)"

@@ -23,15 +23,12 @@ urlpatterns = patterns('',
     url(r'^set_favorite$', 'hanyuqiao.api.set_favorite'),
     url(r'^get_favorites$', 'hanyuqiao.api.get_favorites'),
     url(r'^get_competitionSubjects$', 'hanyuqiao.api.get_competitionSubjects'),
-    url(r'^get_competitions$', 'hanyuqiao.api.get_competitions'),
+    url(r'^get_competition$', 'hanyuqiao.api.get_competition'),
     url(r'^get_players/(?P<cpk>\d+)/(?P<apk>\d+)/(?P<page>\d+)$', api.GetPlayers.as_view()),
-    url(r'^search_players$', 'hanyuqiao.api.search_players'),
+    url(r'^search_players/(?P<cpk>\d+)/(?P<apk>\d+)/(?P<page>\d+)$', api.SearchPlayers.as_view()),
     url(r'^vote$', api.Vote.as_view()),
     url(r'^get_user/(?P<userid>\d+)$', 'hanyuqiao.api.get_user'),
-    
-    url(r'^if_cellphones_exist$', 'hanyuqiao.api.if_cellphones_exist'),
-    
-    url(r'^modify_password$', 'hanyuqiao.api.modify_password'),
+    url(r'^modify_password$', api.ModifyPassword.as_view()),
     url(r'^update_user_info$', 'hanyuqiao.api.update_user_info'),
     url(r'^get_friends_list$', 'hanyuqiao.api.get_friends_list'),
     url(r'^get_notifications$', 'hanyuqiao.api.get_notifications'),
@@ -39,12 +36,13 @@ urlpatterns = patterns('',
     url(r'^invite$', 'hanyuqiao.api.invite'),
     url(r'^pass_invite$', 'hanyuqiao.api.pass_invite'),
     url(r'^deny_invite$', 'hanyuqiao.api.deny_invite'),
-
+                       
+    url(r'^admin/history/(?P<page>\d+)/$', 'hanyuqiao.api.history'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^docs/', include('rest_framework_swagger.urls')),
+    url(r'^nicedit/', include('nicedit.urls')),
     
 )
-
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns = format_suffix_patterns(urlpatterns)

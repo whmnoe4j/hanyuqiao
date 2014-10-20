@@ -31,17 +31,15 @@ class Message(models.Model):
     postdate = models.DateTimeField(auto_now=True,verbose_name = u'修改日期')    
     def __unicode__(self):
         return self.title
-        
-
     class Meta:
         verbose_name = u'资讯'
         verbose_name_plural = "资讯"
 
-
 class MessageContent(models.Model):
     CHOICES = (
-        (True, '通过审核'),
-        (False, '等待审核'),
+        (2, '申请审核'),
+        (3, '通过'),
+        (1, '拒绝'),
         
     )
     message = models.ForeignKey(Message,verbose_name = u'源资讯')
@@ -49,12 +47,9 @@ class MessageContent(models.Model):
     title = models.CharField(max_length=512,verbose_name = u'标题')
     author = models.CharField(max_length=512,verbose_name = u'作者')
     source = models.CharField(max_length=512, null=True, blank=True,verbose_name = u'来源')
-    admin = models.CharField(max_length=512,verbose_name = u'管理')
-    passed = models.BooleanField(choices=CHOICES,default=False,verbose_name = u'审核')
-    text = models.TextField(verbose_name = u'内容')
+    passed = models.IntegerField(choices=CHOICES,default=2,verbose_name = u'审核状态')
     pubDate = models.DateTimeField(auto_now_add=True)
     postdate = models.DateTimeField(auto_now=True,verbose_name = u'修改日期')
-
     def __unicode__(self):
         return self.title
 
@@ -64,8 +59,7 @@ class MessageContent(models.Model):
 
     @property
     def medias(self):
-        return list(self.localmedia_set.all().values()) + \
-            list(self.remotemedia_set.all().values())
+        return list(self.localmedia_set.all().values())
 
     class Meta:
         verbose_name = u'资讯内容(特定语言)'
@@ -74,28 +68,20 @@ class MessageContent(models.Model):
 
 class LocalMedia(models.Model):
     MEDIATYPE = (
-        (1, '图片'),
+        (1, '图片+文字'),
+        (2, '语音+文字'),
+        (3, '视频+文字'),
+        (4, '文字'),
     )
-    mediatype = models.IntegerField(choices=MEDIATYPE,verbose_name = u'类型')
-    mediafile = models.FileField(upload_to='.', null=True, blank=True,verbose_name = u'文件上传')
     message = models.ForeignKey(MessageContent,verbose_name = u'资讯')
-
-    def __unicode__(self):
-        return u'%s' % self.mediafile
-    class Meta:
-        verbose_name = u'资讯图片'
-        verbose_name_plural = "资讯图片"
-class RemoteMedia(models.Model):
-    MEDIATYPE = (
-        (2, '语音'),
-        (3, '视频'),
-    )
     mediatype = models.IntegerField(choices=MEDIATYPE,verbose_name = u'类型')
-    remotefile = models.CharField(max_length=1024,verbose_name = u'文件', null=True, blank=True)
-    message = models.ForeignKey(MessageContent,verbose_name = u'资讯')
-
+    text = models.TextField(verbose_name = u'文本')
+    pictitle= models.CharField(max_length=100,verbose_name = u'图片标题', null=True, blank=True)
+    mediafile = models.ImageField(upload_to='Image', null=True, blank=True,verbose_name = u'图片上传')
+    remotefile = models.CharField(max_length=1024,verbose_name = u'语音视频文件地址', null=True, blank=True)
     def __unicode__(self):
-        return u'%s' % self.remotefile
+        return u'%s的片段' % self.message.title
     class Meta:
-        verbose_name = u'资讯视频'
-        verbose_name_plural = "资讯视频"
+        verbose_name = u'图文片段'
+        verbose_name_plural = "图片片段"
+
