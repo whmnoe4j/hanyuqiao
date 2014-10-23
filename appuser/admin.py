@@ -65,8 +65,8 @@ class MyUserAdmin(UserAdmin):
     list_filter = ('is_admin',)
     fieldsets = (
         (None, {'fields': ('cellphone','password')}),
-        ('Personal info', {'fields': ('cname','nick','email','pic','city','zipcode','abroad','country','language','f_l','gender',
-                                      'birthday','born_place','university','point','career','desc',
+        ('Personal info', {'fields': ('cname','nick','email','pic','tel','city','zipcode','abroad','country','language','f_l','education','degree','gender',
+                                      'birthday','born_place','university','career','religion','blood','star','zod','inte','desc','point','hanbi','level',
                                       'installdate','favorites',)}),
 
         ('Permissions', {'fields': ('is_admin','admin_type','is_superuser',)}),
@@ -81,7 +81,7 @@ class MyUserAdmin(UserAdmin):
     )
     ordering=('id',)
     search_fields = ['cellphone','cname','email',]
-    filter_horizontal = ('friends','favorites',)
+    filter_horizontal = ('favorites',)
 
 
 admin.site.register(MyUser, MyUserAdmin)
