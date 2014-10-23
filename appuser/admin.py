@@ -1,12 +1,12 @@
 from django.contrib import admin
-from appuser.models import MyUser,MyUserToken,Notification,ExtraNotification
+from appuser.models import MyUser,MyUserToken
 from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
-from appuser.models import MyUser,MyUserToken,Notification,ExtraNotification
+from appuser.models import MyUser,MyUserToken
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
@@ -67,7 +67,7 @@ class MyUserAdmin(UserAdmin):
         (None, {'fields': ('cellphone','password')}),
         ('Personal info', {'fields': ('cname','nick','email','pic','city','zipcode','abroad','country','language','f_l','gender',
                                       'birthday','born_place','university','point','career','desc',
-                                      'installdate','favorites','friends',)}),
+                                      'installdate','favorites',)}),
 
         ('Permissions', {'fields': ('is_admin','admin_type','is_superuser',)}),
     )

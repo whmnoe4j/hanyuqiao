@@ -5,6 +5,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext   
 from django.shortcuts import render_to_response
+from django.core.files.base import ContentFile
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -13,9 +14,9 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated,AllowAny
 
 from django.contrib.admin.models import LogEntry
-from hanyuqiao.models import Version,IntroductionImage
+from hanyuqiao.models import Version,IntroductionImage,Hanyuqiao
 from message.models import MessageSubject, Message, MessageContent,Language
-from appuser.models import MyUser,MyUserToken,Notification, ExtraNotification
+from appuser.models import MyUser,MyUserToken
 from competition.models import Competition, Player
 import json
 import random
@@ -41,12 +42,24 @@ def default_json_dump(obj):
         return obj.strftime('%Y-%m-%d:%H:%M:%S')
 
 
-def if_introduction_exist(request, version):
+def newest_introduction(request):
+    i=IntroductionImage.objects.last()
+    if i:
+        data={'pic':i.pic.name,'messageid':i.message.id}
+    else:
+        data=False
     return HttpResponse(
-        json.dumps(
-            Version.objects.filter(version=version).exists()),
+        json.dumps(data),
         content_type="text/json")
-
+def abouthanyuqiao(request):
+    i=Hanyuqiao.objects.last()
+    if i:
+        data={'text':i.desc}
+    else:
+        data=False
+    return HttpResponse(
+        json.dumps(data),
+        content_type="text/json")
 
 @require_http_methods(["POST"])
 def newest_version(request):
@@ -422,7 +435,7 @@ class Vote(APIView):
 def get_user(request, userid):
     user = MyUser.objects.filter(id=userid)
     if user.exists():
-        user = list(user.values())[0]
+        user = list(user.values('id','nick','university','city','desc','career','cellphone'))[0]
         return HttpResponse(json.dumps(user, default=default_json_dump),
                            content_type='text/json')
     else:
@@ -430,6 +443,19 @@ def get_user(request, userid):
         return HttpResponse(json.dumps({'errormsg': errormsg}),
                             content_ype='text/json')
 
+@require_http_methods(["POST"])
+def if_cellphones_exist(request):
+    try:
+        data = json.loads(request.body)
+    except:
+        raise Http404
+    cellphones = data.get('cellphones', [])
+    phones=[]
+    for cellphone in cellphones:
+        if MyUser.objects.filter(cellphone=cellphone).exists():
+            phones.append(cellphone)
+    return HttpResponse(json.dumps(phones),
+                        content_type='text/json')
 
 class ModifyPassword(APIView):
     authentication_classes = (UnsafeSessionAuthentication,BasicAuthentication)
@@ -449,195 +475,31 @@ class ModifyPassword(APIView):
         request.user.save()
         return Response({'success':True})
 
-
-@require_http_methods(["POST"])
-def update_user_info(request):
-    try:
-        data = json.loads(request.body)
-    except:
-        raise Http404
-    user = request.user
-    try:
-        for k, v in data.items():
-            if k in ('userid', 'token', 'password'):
-                continue
-            setattr(user, k, v)
-    except Exception as e:
-        errormsg = str(e)
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-
-    user.save()
-    return HttpResponse(json.dumps(True),
-                        mimetype='text/json')
-
-
-
-@require_http_methods(["POST"])
-def get_friends_list(request):
-    user = request.user
-    if user.is_authenticated():
-        friends = list(user.friends.values('id','nick','cellphone','email'))
-        return HttpResponse(
-        json.dumps(friends),
-        content_type='text/json')
-    else:
-         return HttpResponse(
-        json.dumps('need login'),
-        content_type='text/json')
-
-
-
-def get_notifications(request):
-    try:
-        data = json.loads(request.body)
-    except:
-        raise Http404
-    user = request.user
-    not_read = data.get('not_read', False)
-    cnt = data.get('cnt', 20)
-
-    if not_read:
-        extra_notifications = user.extranotification_set.filter(
-            hasread=False)[
-            : cnt]
-    else:
-        extra_notifications = user.extranotification_set.all()[:cnt]
-    notifications = [(e.id, e.notification.title, e.notification.postdate)
-                     for e in extra_notifications]
-    notifications.sort(key=lambda x: x[-1])
-
-    return HttpResponse(json.dumps(notifications, default=default_json_dump),
-                        mimetype='text/json')
-
-
-
-def get_notification(request):
-    try:
-        data = json.loads(request.body)
-    except:
-        raise Http404
-    # notificationid is really extra_notificationid
-    if 'notificationid' not in data:
-        errormsg = u'没有传递notificationid'
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-    else:
-        notificationid = data['notificationid']
-
-    try:
-        extra_notification = ExtraNotification.objects.get(id=notificationid)
-    except ExtraNotification.DoesNotExist:
-        errormsg = u'没有此消息'
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-
-    extra_notification.hasread = True
-    extra_notification.save()
-
-    r = (extra_notification.notification.title,
-         extra_notification.notification.text)
-
-    return HttpResponse(json.dumps(r), mimetype='text/json')
-
-
-
-@require_http_methods(["POST"])
-def invite(request):
-    try:
-        data = json.loads(request.body)
-    except:
-        raise Http404
-    user = request.user
-    if 'target_cellphone' not in data:
-        errormsg = u'没有传递target_cellphone'
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-    target_cellphone = data['target_cellphone']
-    try:
-        target_user = MyUser.objects.get(cellphone=target_cellphone)
-    except MyUser.DoesNotExist:
-        errormsg = u'没有目标用户'
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-    if target_user in user.friends.all():
-        errormsg = u'对方已在里的好友列表'
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-    notification = Notification(
-        title=u'%s邀请你加为他/她的好友' %
-        user.cellphone,
-        text=u'')
-    notification.save()
-
-    en = ExtraNotification(notification=notification, user=target_user)
-    en.save()
-
-    return HttpResponse(json.dumps(True), mimetype='text/json')
-
-
-
-def pass_invite(request):
-    try:
-        data = json.loads(request.body)
-    except:
-        raise Http404
-    user = request.user
-
-    if 'target_cellphone' not in data:
-        errormsg = u'没有传递target_cellphone'
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-    target_cellphone = data['target_cellphone']
-    try:
-        target_user = MyUser.objects.get(cellphone=target_cellphone)
-    except MyUser.DoesNotExist:
-        errormsg = u'没有目标用户'
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-
-    user.friends.add(target_user)
-    user.save()
-
-    target_user.friends.add(user)
-    target_user.save()
-
-    notification = Notification(title=u'%s通过你的邀请' % user.cellphone, text=u'')
-    notification.save()
-
-    en = ExtraNotification(notification=notification, user=target_user)
-    en.save()
-
-    return HttpResponse(json.dumps(True), mimetype='text/json')
-
-
-
-def deny_invite(request):
-    try:
-        data = json.loads(request.body)
-    except:
-        raise Http404
-    user = request.user
-
-    if 'target_cellphone' not in data:
-        errormsg = u'没有传递target_cellphone'
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-    target_cellphone = data['target_cellphone']
-    try:
-        target_user = MyUser.objects.get(cellphone=target_cellphone)
-    except MyUser.DoesNotExist:
-        errormsg = u'没有目标用户'
-        return HttpResponse(json.dumps({'errormsg': errormsg}),
-                            mimetype='text/json')
-
-    notification = Notification(title=u'%s拒绝你的邀请' % user.cellphone, text=u'')
-    notification.save()
-
-    en = ExtraNotification(notification=notification, user=target_user)
-    en.save()
-
-    return HttpResponse(json.dumps(True), mimetype='text/json')
+class UpdateUserData(APIView):
+    authentication_classes = (UnsafeSessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+    def post(self, request, format=None):
+        user=request.user       
+        for attr in ['nick','university','city','desc','career']:
+            if request.POST.get(attr,''):
+                setattr(user,attr,request.POST.get(attr,''))
+        gender=request.POST.get('gender','')
+        if gender:
+            user.gender=int(gender)
+        img=request.FILES.get('head','')
+        if img:
+            if img.size<3000000:
+                file_content = ContentFile(img.read()) 
+                user.pic.save(img.name, file_content)
+            else:
+                data={'success':False,'err':'too big img'}
+                return Response(data)
+        user.save()
+        if user.pic:
+            data={'success':True,'nick':user.nick,'university':user.university,'city':user.city,'desc':user.desc,'career':user.career,'gender':user.gender,'head':user.pic.name}
+        else:
+            data={'success':True,'nick':user.nick,'university':user.university,'city':user.city,'desc':user.desc,'career':user.career,'gender':user.gender,'head':None}
+        return Response(data)
 
 def history(request,page):
     start=100*(int(page)-1)
@@ -650,3 +512,23 @@ def history(request,page):
     )
     else:
         raise Http404
+@require_http_methods(["POST"])
+def addpoint(request):
+    try:
+        data = json.loads(request.body)
+    except:
+        raise Http404
+    phone=data.get('phoneoremail','')
+    point=data.get('point',0)
+    point=int(point)
+    try:
+        user = MyUser.objects.get(cellphone=phone)
+    except:
+        raise Http404 
+    user.point+=point
+    if user.point<0:
+        return HttpResponse(json.dumps({'success':False,'err':'ponit < 0'}),
+                        content_type='text/json')
+    user.save()
+    return HttpResponse(json.dumps({'success':True,'point':user.point}),
+                        content_type='text/json')

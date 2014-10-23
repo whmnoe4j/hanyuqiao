@@ -20,14 +20,21 @@ class Version(models.Model):
         verbose_name_plural = "版本"
 
 class IntroductionImage(models.Model):
-    introduction = models.ForeignKey(Version)
     pic = models.ImageField(upload_to='InfoImg')
     message=models.ForeignKey(Message,verbose_name = u'资讯')
 
     def __unicode__(self):
-        return '%s[%s]' % (self.introduction.version, self.pic.url)
+        return u'引导页' 
 
     class Meta:
         verbose_name = u'引导页图片'
         verbose_name_plural = "引导页"
 
+class Hanyuqiao(models.Model):
+    desc = models.TextField(verbose_name = u'简介')
+    def __unicode__(self):
+        return u'关于汉语桥' 
+
+    class Meta:
+        verbose_name = u'关于汉语桥'
+        verbose_name_plural = "关于汉语桥"

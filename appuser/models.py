@@ -48,7 +48,7 @@ class MyUser(AbstractBaseUser):
     birthday = models.DateField(verbose_name = '生日',blank=True,null=True)
     born_place = models.CharField(max_length=64,verbose_name = '籍贯', null=True, blank=True)    
     university = models.CharField(max_length=256, verbose_name = '大学',null=True, blank=True)
-    career = models.CharField(max_length=100,verbose_name = '爱好', null=True, blank=True)
+    career = models.CharField(max_length=100,verbose_name = '职业', null=True, blank=True)
     desc = models.CharField(max_length=200,verbose_name = '介绍', null=True, blank=True)
     point= models.IntegerField(verbose_name = '积分',default=0)
     installdate = models.DateTimeField(verbose_name = '安装时间',null=True, blank=True)
@@ -58,7 +58,7 @@ class MyUser(AbstractBaseUser):
     is_active = models.BooleanField(default=True,verbose_name = u'是否活跃用户')
     is_admin = models.BooleanField(default=False,verbose_name = u'管理员(网络编辑与内容审核)')
     admin_type=models.IntegerField(choices=ADMINS,verbose_name = u'管理员类型',null=True,blank=True)
-    is_superuser = models.BooleanField(default=False,verbose_name = u'超级管理员')
+    is_superuser = models.BooleanField(default=False,verbose_name = u'超级管理员(全部权限)')
 
     USERNAME_FIELD = 'cellphone'
 
@@ -115,26 +115,4 @@ class MyUserToken(models.Model):
         verbose_name = '验证码'
         verbose_name_plural = "验证码"
 
-class Notification(models.Model):
-    title = models.CharField(max_length=512)
-    text = models.TextField()
-    postdate = models.DateTimeField(auto_now=True)
 
-    def __unicode__(self):
-        return self.title
-
-    class Meta:
-        verbose_name = u'通知'
-        verbose_name_plural = "通知"
-
-class ExtraNotification(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True)
-    notification = models.ForeignKey(Notification)
-    hasread = models.BooleanField(default=False)
-
-    def __unicode__(self):
-        return self.notification.title
-
-    class Meta:
-        verbose_name = u'个人通知'
-        verbose_name_plural = "个人通知"

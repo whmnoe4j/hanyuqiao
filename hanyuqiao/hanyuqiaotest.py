@@ -155,14 +155,33 @@ def modify_password():
     r=s.post(url,data=data)
     print r.status_code
     print r.content
-def get_friends_list():
+
+def update_user_info():
     s=requests.Session()
     url=baseurl+'/login'
     data={'phoneoremail':'xuefeihan','password':'1','token':'111','abroad':'0'}
     data=json.dumps(data)
     r=s.post(url,data=data)
-    url=baseurl+'/get_friends_list'
-    r=s.post(url)
+    url=baseurl+'/update_user_info'
+    data={'desc':'1111','password':'1','gender':1,'abroad':'0'}
+    r=s.post(url,data=data)
+    print r.status_code
+    print r.content
+def if_cellphones_exist():
+    s=requests.Session()
+    url=baseurl+'/if_cellphones_exist'
+    data={'cellphones':['xuefeihan','hungerr','hungerrr','hanyuqiao']}
+    data=json.dumps(data)
+    r=s.post(url,data=data)
     print r.status_code
     print r.content
 
+def changepoint():
+    s=requests.Session()
+    url=baseurl+'/changepoint'
+    data={'phoneoremail':'xuefeihan','point':'-10'}
+    data=json.dumps(data)
+    r=s.post(url,data=data)
+    print r.status_code
+    print r.content
+changepoint()

@@ -9,8 +9,9 @@ from hanyuqiao import api
 
 urlpatterns = patterns('',
     # Examples:
-    url(r'^if_introduction_exist/(?P<version>\S+)$', 'hanyuqiao.api.if_introduction_exist'),
+    url(r'^newest_introduction$', 'hanyuqiao.api.newest_introduction'),
     url(r'^newest_version$', 'hanyuqiao.api.newest_version'),
+    url(r'^abouthanyuqiao$', 'hanyuqiao.api.abouthanyuqiao'),
     url(r'^reg$', api.Reg.as_view()),
     url(r'^login$', api.Login.as_view()),
     url(r'^get_language_list$', 'hanyuqiao.api.get_language_list'),
@@ -28,20 +29,15 @@ urlpatterns = patterns('',
     url(r'^search_players/(?P<cpk>\d+)/(?P<apk>\d+)/(?P<page>\d+)$', api.SearchPlayers.as_view()),
     url(r'^vote$', api.Vote.as_view()),
     url(r'^get_user/(?P<userid>\d+)$', 'hanyuqiao.api.get_user'),
+    url(r'^if_cellphones_exist$', 'hanyuqiao.api.if_cellphones_exist'),
     url(r'^modify_password$', api.ModifyPassword.as_view()),
-    url(r'^update_user_info$', 'hanyuqiao.api.update_user_info'),
-    url(r'^get_friends_list$', 'hanyuqiao.api.get_friends_list'),
-    url(r'^get_notifications$', 'hanyuqiao.api.get_notifications'),
-    url(r'^get_notification$', 'hanyuqiao.api.get_notification'),
-    url(r'^invite$', 'hanyuqiao.api.invite'),
-    url(r'^pass_invite$', 'hanyuqiao.api.pass_invite'),
-    url(r'^deny_invite$', 'hanyuqiao.api.deny_invite'),
+    url(r'^update_user_info$', api.UpdateUserData.as_view()),
+    url(r'^changepoint$', 'hanyuqiao.api.addpoint'),
                        
     url(r'^admin/history/(?P<page>\d+)/$', 'hanyuqiao.api.history'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^docs/', include('rest_framework_swagger.urls')),
-    url(r'^nicedit/', include('nicedit.urls')),
     
 )
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
