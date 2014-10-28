@@ -1,6 +1,6 @@
 import requests
 import json
-baseurl='http://127.0.0.1:8000'
+baseurl='http://121.40.211.134'
 def login():
     s=requests.Session()
     url=baseurl+'/login'
@@ -9,7 +9,7 @@ def login():
     r=s.post(url,data=data)
     print r.status_code
     print r.content
-
+login()
 def if_introduction_exist():
     s=requests.Session()
     url=baseurl+'/if_introduction_exist/1.0.1'
@@ -184,4 +184,4 @@ def changepoint():
     r=s.post(url,data=data)
     print r.status_code
     print r.content
-changepoint()
+

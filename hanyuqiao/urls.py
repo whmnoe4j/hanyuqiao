@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     url(r'^newest_introduction$', 'hanyuqiao.api.newest_introduction'),
     url(r'^newest_version$', 'hanyuqiao.api.newest_version'),
     url(r'^abouthanyuqiao$', 'hanyuqiao.api.abouthanyuqiao'),
+    url(r'^createtoken$', api.CreateToken.as_view()),
     url(r'^reg$', api.Reg.as_view()),
     url(r'^login$', api.Login.as_view()),
     url(r'^get_language_list$', 'hanyuqiao.api.get_language_list'),
@@ -37,7 +38,6 @@ urlpatterns = patterns('',
     url(r'^admin/history/(?P<page>\d+)/$', 'hanyuqiao.api.history'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^docs/', include('rest_framework_swagger.urls')),
     
 )
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

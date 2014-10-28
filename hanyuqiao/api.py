@@ -22,6 +22,7 @@ import json
 import random
 import datetime
 from django.core.files.base import ContentFile
+import requests
 
 class UnsafeSessionAuthentication(SessionAuthentication):
 
@@ -66,7 +67,37 @@ def newest_version(request):
     return HttpResponse(
         Version.objects.order_by('-version')[0].version,
         content_type="text/json")
-
+class CreateToken(APIView):
+    authentication_classes = (UnsafeSessionAuthentication,)
+    permission_classes = (AllowAny,)
+    def send_token(self,token,phone):
+        url='http://www.810086.com.cn/jk.aspx'
+        content='【汉语桥】您的验证码是'+token
+        data={'zh':'zhoulang11','mm':'123456789','hm':phone,'nr':content,'sms_type':42}
+        r=requests.post(url,data=data)
+        return r.content
+    def post(self, request, format=None):
+        try:
+            data=json.loads(request.body)
+        except:
+            return Response({'success':False,'err_msg':'empty data'})
+        phone=data.get('phone','')
+        phone=str(phone)
+        if phone:
+            user,created=MyUserToken.objects.get_or_create(phone=phone)
+            token=random.randint(100000,999999)
+            user.token=str(token)
+            user.save()
+            result=self.send_token(str(token),phone)
+            if result.startswith('0'):
+                data={'success':True}
+                return Response(data)
+            else:
+                data={'success':False,'err_code':result}
+                return Response(data)
+        else:
+            data={'success':False,'err_msg':'empty phone','err_code':1004}
+            return Response({'successw':False})
 
 class Reg(APIView):
     authentication_classes = (UnsafeSessionAuthentication,)
@@ -78,9 +109,11 @@ class Reg(APIView):
             return Response({'success':False,'err_msg':'empty data'})
         abroad=data.get('abroad','')
         phone=data.get('phone','').strip()
+        phone=str(phone)
         email=data.get('email','').strip()
         pw=data.get('password','').strip()
         token=data.get('token','').strip()
+        token=str(token)
         if abroad=='0' or abroad==0: 
             try:
                 usertoken=MyUserToken.objects.get(phone=phone)
