@@ -4,12 +4,11 @@ baseurl='http://121.40.211.134'
 def login():
     s=requests.Session()
     url=baseurl+'/login'
-    data={'phoneoremail':'xuefeihan','password':'1','token':'111','abroad':'0'}
+    data={'phoneoremail':'453479002@qq.com','password':'123'}
     data=json.dumps(data)
     r=s.post(url,data=data)
     print r.status_code
     print r.content
-login()
 def if_introduction_exist():
     s=requests.Session()
     url=baseurl+'/if_introduction_exist/1.0.1'
@@ -51,12 +50,12 @@ def translate():
 def get_messages():
     s=requests.Session()
     url=baseurl+'/get_messages'
-    data={'id':1,'start':0,'end':8}
+    data={'id':1,'start':0,'count':11}
     data=json.dumps(data)
     r=s.post(url,data=data)
     print r.status_code
     print r.content
-
+get_messages()
 def get_message():
     s=requests.Session()
     url=baseurl+'/get_message/1'
@@ -146,16 +145,17 @@ def get_user():
 def modify_password():
     s=requests.Session()
     url=baseurl+'/login'
-    data={'phoneoremail':'xuefeihan','password':'1','token':'111','abroad':'0'}
-    data=json.dumps(data)
-    r=s.post(url,data=data)
-    url=baseurl+'/modify_password'
-    data={'oldpassword':'111','newpassword':'1'}
+    data={'phoneoremail':'453479002@qq.com','password':'123'}
     data=json.dumps(data)
     r=s.post(url,data=data)
     print r.status_code
     print r.content
-
+    url=baseurl+'/modify_password'
+    data={'oldpassword':'123','newpassword':'1234'}
+    data=json.dumps(data)
+    r=s.post(url,data=data)
+    print r.status_code
+    print r.content
 def update_user_info():
     s=requests.Session()
     url=baseurl+'/login'

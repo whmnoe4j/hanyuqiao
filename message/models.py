@@ -85,3 +85,4 @@ class LocalMedia(models.Model):
         verbose_name = u'图文片段'
         verbose_name_plural = "图片片段"
 
+    

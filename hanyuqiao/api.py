@@ -468,7 +468,7 @@ class Vote(APIView):
 def get_user(request, userid):
     user = MyUser.objects.filter(id=userid)
     if user.exists():
-        user = list(user.values('id','nick','university','city','desc','career','cellphone'))[0]
+        user = list(user.values())[0]
         return HttpResponse(json.dumps(user, default=default_json_dump),
                            content_type='text/json')
     else:
@@ -513,12 +513,23 @@ class UpdateUserData(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request, format=None):
         user=request.user       
-        for attr in ['nick','university','city','desc','career']:
+        for attr in ['nick','cname','email','f_l','born_place','inte','country','university','city','desc','career']:
             if request.POST.get(attr,''):
                 setattr(user,attr,request.POST.get(attr,''))
-        gender=request.POST.get('gender','')
-        if gender:
-            user.gender=int(gender)
+        for attr in ['gender','tel','abroad','zipcode','education','degree','religion','blood','star','zod']:
+            if request.POST.get(attr,''):
+                setattr(user,attr,int(request.POST.get(attr,'')))
+        for attr in ['birthday','installdate']:
+            if request.POST.get(attr,''):
+                year=int(request.POST.get(attr,'')[:4])
+                month=int(request.POST.get(attr,'')[5:7])
+                day=int(request.POST.get(attr,'')[8:10])
+                date=datetime.date(year,month,day)
+                setattr(user,attr,date)
+        languageid=request.POST.get('languageid','')
+        if languageid:
+            l=Language.objects.get(id=int(languageid))
+            user.language=l
         img=request.FILES.get('head','')
         if img:
             if img.size<3000000:
@@ -528,10 +539,8 @@ class UpdateUserData(APIView):
                 data={'success':False,'err':'too big img'}
                 return Response(data)
         user.save()
-        if user.pic:
-            data={'success':True,'nick':user.nick,'university':user.university,'city':user.city,'desc':user.desc,'career':user.career,'gender':user.gender,'head':user.pic.name}
-        else:
-            data={'success':True,'nick':user.nick,'university':user.university,'city':user.city,'desc':user.desc,'career':user.career,'gender':user.gender,'head':None}
+        datauser = MyUser.objects.filter(id=user.id)
+        data=list(datauser.values())[0]
         return Response(data)
 
 def history(request,page):
