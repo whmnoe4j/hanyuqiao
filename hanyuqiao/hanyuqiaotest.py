@@ -55,7 +55,6 @@ def get_messages():
     r=s.post(url,data=data)
     print r.status_code
     print r.content
-get_messages()
 def get_message():
     s=requests.Session()
     url=baseurl+'/get_message/1'
@@ -159,14 +158,17 @@ def modify_password():
 def update_user_info():
     s=requests.Session()
     url=baseurl+'/login'
-    data={'phoneoremail':'xuefeihan','password':'1','token':'111','abroad':'0'}
+    data={'phoneoremail':'hungerr','password':'1234'}
     data=json.dumps(data)
-    r=s.post(url,data=data)
-    url=baseurl+'/update_user_info'
-    data={'desc':'1111','password':'1','gender':1,'abroad':'0'}
     r=s.post(url,data=data)
     print r.status_code
     print r.content
+    url=baseurl+'/update_user_info'
+    data={'desc':'1111','password':'1','gender':1,'abroad':'0','birthday':'1988-09-09','languageid':2}
+    r=s.post(url,data=data)
+    print r.status_code
+    print r.content
+update_user_info()
 def if_cellphones_exist():
     s=requests.Session()
     url=baseurl+'/if_cellphones_exist'

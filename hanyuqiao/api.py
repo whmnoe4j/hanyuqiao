@@ -514,10 +514,10 @@ class UpdateUserData(APIView):
     def post(self, request, format=None):
         user=request.user       
         for attr in ['nick','cname','email','f_l','born_place','inte','country','university','city','desc','career']:
-            if request.POST.get(attr,''):
+            if attr in request.POST:
                 setattr(user,attr,request.POST.get(attr,''))
         for attr in ['gender','tel','abroad','zipcode','education','degree','religion','blood','star','zod']:
-            if request.POST.get(attr,''):
+            if attr in request.POST:
                 setattr(user,attr,int(request.POST.get(attr,'')))
         for attr in ['birthday','installdate']:
             if request.POST.get(attr,''):
@@ -530,6 +530,7 @@ class UpdateUserData(APIView):
         if languageid:
             l=Language.objects.get(id=int(languageid))
             user.language=l
+        user.save()
         img=request.FILES.get('head','')
         if img:
             if img.size<3000000:

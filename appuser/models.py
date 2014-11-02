@@ -33,6 +33,56 @@ class MyUser(AbstractBaseUser):
         (1, u'网络编辑'),
         (2, u'内容审核'),
     )
+    EDUCATION=(
+        (0, u'无'),
+        (1, u'小学'),
+        (2, u'初中'),
+        (3, u'高中'),
+        (4, u'大学'),
+    )
+    DEGREE=(
+        (0, u'无'),
+        (1, u'学士'),
+        (2, u'硕士'),
+        (3, u'博士'),
+    )
+    RELIGION=(
+        (0, u'无'),
+        (1, u'佛教'),
+        (2, u'伊斯兰教'),
+        (3, u'基督教'),
+        (4, u'道教'),
+        (5, u'天主教'),
+        (6, u'其他'),
+    )
+    STAR=(
+        (0, u'白羊座'),
+        (1, u'金牛座'),
+        (2, u'双子座'),
+        (3, u'巨蟹座'),
+        (4, u'狮子座'),
+        (5, u'处女座'),
+        (6, u'天秤座'),
+        (7, u'天蝎座'),
+        (8, u'射手座'),
+        (9, u'摩羯座'),
+        (10, u'水瓶座'),
+        (11, u'双鱼座'),
+    )
+    ZOD=(
+        (0, u'鼠'),
+        (1, u'牛'),
+        (2, u'虎'),
+        (3, u'兔'),
+        (4, u'龙'),
+        (5, u'蛇'),
+        (6, u'马'),
+        (7, u'羊'),
+        (8, u'猴'),
+        (9, u'鸡'),
+        (10, u'狗'),
+        (11, u'猪'),
+    )
     nick = models.CharField(max_length=60,verbose_name = '昵称', null=True, blank=True)
     cname = models.CharField(max_length=10,verbose_name = '真实名称', null=True, blank=True)
     gender = models.IntegerField(choices=GENDER,verbose_name = '性别', null=True, blank=True)
@@ -46,16 +96,16 @@ class MyUser(AbstractBaseUser):
     zipcode= models.IntegerField(verbose_name = '邮政编码', null=True, blank=True)
     language = models.ForeignKey(Language,verbose_name = u'母语', null=True, blank=True)
     f_l = models.CharField(max_length=64,verbose_name = '外语', null=True, blank=True)
-    education=models.IntegerField(verbose_name = '学历',blank=True,null=True)
-    degree=models.IntegerField(verbose_name = '学位',blank=True,null=True)
+    education=models.IntegerField(choices=EDUCATION,verbose_name = '学历',blank=True,null=True)
+    degree=models.IntegerField(choices=DEGREE,verbose_name = '学位',blank=True,null=True)
     birthday = models.DateField(verbose_name = '生日',blank=True,null=True)
     born_place = models.CharField(max_length=64,verbose_name = '籍贯', null=True, blank=True)    
     university = models.CharField(max_length=256, verbose_name = '大学',null=True, blank=True)
     career = models.CharField(max_length=100,verbose_name = '职业', null=True, blank=True)
-    religion=models.IntegerField(verbose_name = '宗教',blank=True,null=True)
+    religion=models.IntegerField(choices=RELIGION,verbose_name = '宗教',blank=True,null=True)
     blood=models.IntegerField(verbose_name = '血型',blank=True,null=True)
-    star=models.IntegerField(verbose_name = '星座',blank=True,null=True)
-    zod=models.IntegerField(verbose_name = '属相',blank=True,null=True)
+    star=models.IntegerField(choices=STAR,verbose_name = '星座',blank=True,null=True)
+    zod=models.IntegerField(choices=ZOD,verbose_name = '属相',blank=True,null=True)
     inte = models.CharField(max_length=100,verbose_name = '兴趣', null=True, blank=True)
     desc = models.CharField(max_length=200,verbose_name = '介绍', null=True, blank=True)
     point= models.IntegerField(verbose_name = '积分',default=0)
