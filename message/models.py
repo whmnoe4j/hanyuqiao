@@ -51,7 +51,7 @@ class MessageContent(models.Model):
     pubDate = models.DateTimeField(auto_now_add=True)
     postdate = models.DateTimeField(auto_now=True,verbose_name = u'修改日期')
     def __unicode__(self):
-        return self.title
+        return u'%s %s版'%(self.message.title,self.language.name)
 
     @property
     def messageid(self):

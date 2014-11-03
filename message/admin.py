@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.db import models
 
@@ -15,9 +16,12 @@ class MediaInline(admin.StackedInline):
 class ContentAdmin(admin.ModelAdmin):
     fields=('message','language','title','author','source')
     fields_l=('message','language','title','author','source','passed')
-    list_display = ('title','passed')
+    list_display = ('message_l_name','passed')
     ordering=('id','passed')
     inlines=[MediaInline,]
+    def message_l_name(self, obj):
+        return u'资讯-%s-%s版'%(obj.message.title,obj.language.name)
+    message_l_name.short_description = 'Name'
     def get_fields(self, request, obj=None):
         if request.user.admin_type==1:
             return self.fields
