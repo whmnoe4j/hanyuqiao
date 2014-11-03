@@ -83,6 +83,12 @@ class MyUser(AbstractBaseUser):
         (10, u'狗'),
         (11, u'猪'),
     )
+    BLOOD=(
+        (0, u'A型'),
+        (1, u'B型'),
+        (2, u'AB型'),
+        (3, u'O型'),
+    )
     nick = models.CharField(max_length=60,verbose_name = '昵称', null=True, blank=True)
     cname = models.CharField(max_length=10,verbose_name = '真实名称', null=True, blank=True)
     gender = models.IntegerField(choices=GENDER,verbose_name = '性别', null=True, blank=True)
@@ -103,7 +109,7 @@ class MyUser(AbstractBaseUser):
     university = models.CharField(max_length=256, verbose_name = '大学',null=True, blank=True)
     career = models.CharField(max_length=100,verbose_name = '职业', null=True, blank=True)
     religion=models.IntegerField(choices=RELIGION,verbose_name = '宗教',blank=True,null=True)
-    blood=models.IntegerField(verbose_name = '血型',blank=True,null=True)
+    blood=models.IntegerField(choices=BLOOD,verbose_name = '血型',blank=True,null=True)
     star=models.IntegerField(choices=STAR,verbose_name = '星座',blank=True,null=True)
     zod=models.IntegerField(choices=ZOD,verbose_name = '属相',blank=True,null=True)
     inte = models.CharField(max_length=100,verbose_name = '兴趣', null=True, blank=True)
