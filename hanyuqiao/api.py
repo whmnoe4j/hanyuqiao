@@ -280,7 +280,7 @@ class GetMessages(APIView):
         ms=[]
         for m in messages:
             if m.messagecontent_set.filter(language=language,passed=3).exists():
-                ms.append(m.messagecontent_set.get(language=language))
+                ms.append(m.messagecontent_set.filter(language=language,passed=3)[0])
             else:
                 ms.append(m.messagecontent_set.filter(passed=3).order_by('language__index')[0])
         data=[]

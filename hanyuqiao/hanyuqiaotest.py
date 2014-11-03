@@ -50,11 +50,12 @@ def translate():
 def get_messages():
     s=requests.Session()
     url=baseurl+'/get_messages'
-    data={'id':1,'start':0,'count':11}
+    data={'id':2,'start':0,'count':10}
     data=json.dumps(data)
     r=s.post(url,data=data)
     print r.status_code
     print r.content
+get_messages()
 def get_message():
     s=requests.Session()
     url=baseurl+'/get_message/1'
@@ -168,7 +169,7 @@ def update_user_info():
     r=s.post(url,data=data)
     print r.status_code
     print r.content
-update_user_info()
+
 def if_cellphones_exist():
     s=requests.Session()
     url=baseurl+'/if_cellphones_exist'
