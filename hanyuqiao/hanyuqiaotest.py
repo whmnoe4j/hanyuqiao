@@ -29,14 +29,14 @@ def if_update_introduction():
     r=s.post(url,data=data)
     print r.status_code
     print r.content
-if_update_introduction()
+
 def newest_version():
     s=requests.Session()
     url=baseurl+'/newest_version'
     r=s.post(url)
     print r.status_code
     print r.content
-
+newest_version()
 def get_language_list():
     s=requests.Session()
     url=baseurl+'/get_language_list'

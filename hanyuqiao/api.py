@@ -84,7 +84,7 @@ def abouthanyuqiao(request):
 def newest_version(request):
     version=Version.objects.order_by('-version')[0]
     data={'version':version.version,'download':version.download}
-    return HttpResponse(data,
+    return HttpResponse(json.dumps(data),
         content_type="text/json")
 class CreateToken(APIView):
     authentication_classes = (UnsafeSessionAuthentication,)
