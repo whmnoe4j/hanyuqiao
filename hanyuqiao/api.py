@@ -82,8 +82,9 @@ def abouthanyuqiao(request):
 
 @require_http_methods(["POST"])
 def newest_version(request):
-    return HttpResponse(
-        Version.objects.order_by('-version')[0].version,
+    version=Version.objects.order_by('-version')[0]
+    data={'version':version.version,'download':version.download}
+    return HttpResponse(data,
         content_type="text/json")
 class CreateToken(APIView):
     authentication_classes = (UnsafeSessionAuthentication,)

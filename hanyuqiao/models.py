@@ -3,7 +3,8 @@
 from django.db import models
 from message.models import Message
 class Version(models.Model):
-    version = models.CharField(max_length=16)
+    version = models.CharField(max_length=16,verbose_name='版本号')
+    download=models.CharField(max_length=100,verbose_name='下载地址')
 
     def __unicode__(self):
         return self.version

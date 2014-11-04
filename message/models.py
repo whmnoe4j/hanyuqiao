@@ -69,9 +69,11 @@ class MessageContent(models.Model):
 class LocalMedia(models.Model):
     MEDIATYPE = (
         (1, '图片+文字'),
-        (2, '语音+文字'),
-        (3, '视频+文字'),
-        (4, '文字'),
+        (2, '语音(流媒体)+文字'),
+        (3, '语音(网页)+文字'),
+        (4, '视频(流媒体)+文字'),
+        (5, '视频(网页)+文字'),
+        (6, '文字'),
     )
     message = models.ForeignKey(MessageContent,verbose_name = u'资讯')
     mediatype = models.IntegerField(choices=MEDIATYPE,verbose_name = u'类型')
@@ -79,6 +81,7 @@ class LocalMedia(models.Model):
     pictitle= models.CharField(max_length=100,verbose_name = u'图片标题', null=True, blank=True)
     mediafile = models.ImageField(upload_to='Image', null=True, blank=True,verbose_name = u'图片上传')
     remotefile = models.CharField(max_length=1024,verbose_name = u'语音视频文件地址', null=True, blank=True)
+    
     def __unicode__(self):
         return u'%s的片段' % self.message.title
     class Meta:
