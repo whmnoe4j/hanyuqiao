@@ -52,6 +52,24 @@ def newest_introduction(request):
     return HttpResponse(
         json.dumps(data),
         content_type="text/json")
+@require_http_methods(["POST"])
+def if_update_introduction(request,name,pk):
+    i=IntroductionImage.objects.last()
+    try:
+        data=json.loads(request.body)
+    except:
+        return Response({'success':False,'err_msg':'empty data'})
+    name=data.get('pic','')
+    pk=data.get('id','')
+    if pk:
+        pk=int(pk)
+    if i.pic.name==name and i.message.id==pk:
+        data={'update':False}
+    else:
+        data={'update':True,'pic':i.pic.name,'messageid':i.message.id}
+    return HttpResponse(
+        json.dumps(data),
+        content_type="text/json")
 def abouthanyuqiao(request):
     i=Hanyuqiao.objects.last()
     if i:

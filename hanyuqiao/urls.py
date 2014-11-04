@@ -10,6 +10,7 @@ from hanyuqiao import api
 urlpatterns = patterns('',
     # Examples:
     url(r'^newest_introduction$', 'hanyuqiao.api.newest_introduction'),
+    url(r'^if_update_introduction$', 'hanyuqiao.api.if_update_introduction'),
     url(r'^newest_version$', 'hanyuqiao.api.newest_version'),
     url(r'^abouthanyuqiao$', 'hanyuqiao.api.abouthanyuqiao'),
     url(r'^createtoken$', api.CreateToken.as_view()),
