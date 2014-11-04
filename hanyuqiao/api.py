@@ -53,7 +53,7 @@ def newest_introduction(request):
         json.dumps(data),
         content_type="text/json")
 @require_http_methods(["POST"])
-def if_update_introduction(request,name,pk):
+def if_update_introduction(request):
     i=IntroductionImage.objects.last()
     try:
         data=json.loads(request.body)
