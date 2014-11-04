@@ -12,7 +12,11 @@ class CustomModelAdmin(admin.ModelAdmin):
         return self.readonly_fields
 class MediaInline(admin.StackedInline):
     model = LocalMedia
-
+    readonly_fields=()
+    def get_readonly_fields(self,request,obj=None):
+        if not request.user.is_superuser and request.user.admin_type==2:
+            return ('message','mediatype','text','pictitle','mediafile','remotefile')
+        return self.readonly_fields
 class ContentAdmin(admin.ModelAdmin):
     fields=('message','language','title','author','source')
     fields_l=('message','language','title','author','source','passed')
