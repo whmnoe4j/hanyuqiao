@@ -2,10 +2,19 @@
 from django.db import models
 from hanyuqiao import settings
 from message.models import Language
-class Competition(models.Model):
 
-    title = models.CharField(max_length=512,verbose_name = u'比赛名称')
-    subject = models.CharField(max_length=512,verbose_name = u'投票主题')
+class Competition(models.Model):
+    title = models.CharField(max_length=512,verbose_name = u'比赛标题')
+    pubDate = models.DateTimeField(auto_now_add=True)
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = u'比赛'
+        verbose_name_plural = "比赛"
+class CompetitionSubject(models.Model):
+    competition = models.ForeignKey(Competition,verbose_name = u'比赛')
+    title = models.CharField(max_length=512,verbose_name = u'主题名称')
     pic= models.ImageField(upload_to='competition', verbose_name = u'图片',null=True,blank=True)
     canvote=models.BooleanField(default=True,verbose_name = u'是否可投票')
     pubDate = models.DateTimeField(auto_now_add=True)
@@ -13,11 +22,9 @@ class Competition(models.Model):
     enddate = models.DateField(verbose_name = u'截止日期')
     def __unicode__(self):
         return self.title
-
     class Meta:
-        verbose_name = u'比赛'
+        verbose_name = u'比赛主题'
         verbose_name_plural = "比赛"
-
 class Player(models.Model):
     GENDER = (
         (0, u'男'),
@@ -34,7 +41,7 @@ class Player(models.Model):
         (4, u'非洲'),
         (5, u'大洋洲'),
     )
-    competition = models.ForeignKey(Competition,verbose_name = u'比赛')
+    competition = models.ForeignKey(CompetitionSubject,verbose_name = u'比赛主题')
     cname = models.CharField(max_length=32,verbose_name = u'名称')
     ename = models.CharField(max_length=256, verbose_name = u'英文名称',null=True, blank=True)
     votenum = models.IntegerField(verbose_name = u'获得票数',default=0)

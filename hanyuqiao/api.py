@@ -17,7 +17,7 @@ from django.contrib.admin.models import LogEntry
 from hanyuqiao.models import Version,IntroductionImage,Hanyuqiao
 from message.models import MessageSubject, Message, MessageContent,Language
 from appuser.models import MyUser,MyUserToken
-from competition.models import Competition, Player
+from competition.models import Competition, Player,CompetitionSubject
 import json
 import random
 import datetime
@@ -90,9 +90,9 @@ class CreateToken(APIView):
     authentication_classes = (UnsafeSessionAuthentication,)
     permission_classes = (AllowAny,)
     def send_token(self,token,phone):
-        url='http://www.810086.com.cn/jk.aspx'
+        url='http://42.96.149.47:1086/sdk/BatchSend.aspx'
         content='【汉语桥】您的验证码是'+token
-        data={'zh':'zhoulang11','mm':'123456789','hm':phone,'nr':content,'sms_type':42}
+        data={'CorpID':'TEST02456','Pwd':'123456','Mobile':phone,'Content':content,}
         r=requests.post(url,data=data)
         return r.content
     def post(self, request, format=None):
@@ -108,7 +108,7 @@ class CreateToken(APIView):
             user.token=str(token)
             user.save()
             result=self.send_token(str(token),phone)
-            if result.startswith('0'):
+            if int(result)>0:
                 data={'success':True}
                 return Response(data)
             else:
@@ -376,35 +376,38 @@ def get_favorites(request):
                         content_type='text/json')
 
 
-
 @require_http_methods(["POST"])
-def get_competitionSubjects(request):
+def get_competitions(request):
     # since sqlite does not support distinct
-    subjects = Competition.objects.order_by('-pubDate','startdate').values('id','title','canvote')
-    subjects = list(subjects)
+    cs = Competition.objects.order_by('pubDate').values('id','title')
+    cs = list(cs)
+    return HttpResponse(json.dumps(cs),
+                        content_type='text/json')
+@require_http_methods(["POST"])
+def get_competitionSubjects(request,pk):
+    # since sqlite does not support distinct
+    try:
+        c= Competition.objects.get(id=int(pk))
+    except:
+        raise Http404
+    subjects = c.competitionsubject_set.order_by('pubDate','startdate').values('id','title','canvote')
+    subjects=list(subjects)
     return HttpResponse(json.dumps(subjects),
                         content_type='text/json')
 
-
-
 @require_http_methods(["POST"])
-def get_competition(request):
-    try:
-        data = json.loads(request.body)
-    except:
-        raise Http404
-    pk=data.get('id','')
+def get_competition(request,pk):
     try:
         pk=int(pk) 
-        competition = Competition.objects.get(id=pk)
+        subject = CompetitionSubject.objects.get(id=pk)
     except:
         raise Http404
     data={}
-    data['subject']=competition.subject
-    if competition.pic:
-        data['pic']=competition.pic.name
-    data['startdate']=competition.startdate.strftime('%Y-%m-%d')
-    data['enddate']=competition.enddate.strftime('%Y-%m-%d')
+    data['title']=subject.title
+    if subject.pic:
+        data['pic']=subject.pic.name
+    data['startdate']=subject.startdate.strftime('%Y-%m-%d')
+    data['enddate']=subject.enddate.strftime('%Y-%m-%d')
     return HttpResponse(json.dumps(data),
                        content_type='text/json')
 
@@ -413,8 +416,8 @@ class GetPlayers(APIView):
     permission_classes = (AllowAny,)
     def get_object(self, pk):
         try:
-            return Competition.objects.get(pk=pk)
-        except Competition.DoesNotExist:
+            return CompetitionSubject.objects.get(pk=pk)
+        except CompetitionSubject.DoesNotExist:
             raise Http404
     def post(self, request,cpk,apk,page, format=None):
         cpk=int(cpk)

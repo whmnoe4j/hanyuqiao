@@ -151,7 +151,7 @@ class MyUser(AbstractBaseUser):
             else:
                 return False
         elif self.is_admin and self.is_active and self.admin_type==2:
-            if  perm=='competition.change_player' or perm=='competition.change_competition' or perm=='message.change_language'\
+            if  perm=='competition.change_player' or perm=='competition.change_competition' or perm=='competition.change_competitionsubject' or perm=='message.change_language'\
             or perm=='message.change_message' or perm=='message.change_messagecontent' or perm=='message.change_messagesubject' or perm=='message.change_localmedia':
                 return True
             else:

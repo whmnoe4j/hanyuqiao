@@ -1,5 +1,5 @@
 from django.contrib import admin
-from competition.models import  Competition, Player
+from competition.models import  Competition, Player,CompetitionSubject
 
 class CustomModelAdmin(admin.ModelAdmin):
     def get_readonly_fields(self,request,obj=None):
@@ -12,5 +12,6 @@ class PlayerAdmin(CustomModelAdmin):
     list_display = ('cname', 'ename','country','ci','competition')
     list_filter = ('cname', 'ename','country','ci','competition')
 admin.site.register(Competition,CustomModelAdmin)
+admin.site.register(CompetitionSubject,CustomModelAdmin)
 admin.site.register(Player,PlayerAdmin)
 
