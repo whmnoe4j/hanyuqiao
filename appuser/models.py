@@ -121,7 +121,7 @@ class MyUser(AbstractBaseUser):
     pubdate = models.DateTimeField(auto_now_add=True,verbose_name = '注册时间',)
     favorites = models.ManyToManyField(Message,verbose_name = u'收藏资讯', null=True, blank=True)
     is_active = models.BooleanField(default=True,verbose_name = u'是否活跃用户')
-    is_admin = models.BooleanField(default=False,verbose_name = u'管理员(网络编辑与内容审核)')
+    is_admin = models.BooleanField(default=False,verbose_name = u'管理员(网络编辑或内容审核)')
     admin_type=models.IntegerField(choices=ADMINS,verbose_name = u'管理员类型',null=True,blank=True)
     is_superuser = models.BooleanField(default=False,verbose_name = u'超级管理员(全部权限)')
 

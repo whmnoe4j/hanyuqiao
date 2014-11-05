@@ -76,7 +76,7 @@ class MyUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('cellphone', 'password1', 'password2','is_admin','admin_type','is_superuser',)}
+            'fields': ('cellphone', 'password1', 'password2',('is_admin','admin_type'),'is_superuser',)}
         ),
     )
     ordering=('id',)
