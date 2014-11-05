@@ -116,18 +116,18 @@ def get_competition():
 def get_players():
     s=requests.Session()
     url=baseurl+'/login'
-    data={'phoneoremail':'xuefeihan','password':'1','token':'111','abroad':'0'}
+    data={'phoneoremail':'hanyuqiao','password':'1','token':'111','abroad':'0'}
     data=json.dumps(data)
     r=s.post(url,data=data)
     url=baseurl+'/get_players/1/1/1'
     r=s.post(url)
     print r.status_code
     print r.content
-
+get_players()
 def search_players():
     s=requests.Session()
     url=baseurl+'/login'
-    data={'phoneoremail':'xuefeihan','password':'1','token':'111','abroad':'0'}
+    data={'phoneoremail':'hanyuqiao','password':'1','token':'111','abroad':'0'}
     data=json.dumps(data)
     r=s.post(url,data=data)
     url=baseurl+'/search_players/1/1/1'
@@ -136,6 +136,7 @@ def search_players():
     r=s.post(url,data=data)
     print r.status_code
     print r.content
+search_players()
 def vote():
     s=requests.Session()
     url=baseurl+'/login'
