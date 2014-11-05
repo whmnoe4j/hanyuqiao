@@ -24,7 +24,7 @@ class CompetitionSubject(models.Model):
         return self.title
     class Meta:
         verbose_name = u'比赛主题'
-        verbose_name_plural = "比赛"
+        verbose_name_plural = "比赛主题"
 class Player(models.Model):
     GENDER = (
         (0, u'男'),

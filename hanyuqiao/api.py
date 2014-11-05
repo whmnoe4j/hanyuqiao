@@ -406,6 +406,8 @@ def get_competition(request,pk):
     data['title']=subject.title
     if subject.pic:
         data['pic']=subject.pic.name
+    else:
+        data['pic']=''
     data['startdate']=subject.startdate.strftime('%Y-%m-%d')
     data['enddate']=subject.enddate.strftime('%Y-%m-%d')
     return HttpResponse(json.dumps(data),
