@@ -34,7 +34,6 @@ class Player(models.Model):
         (4, u'非洲'),
         (5, u'大洋洲'),
     )
-    sn = models.IntegerField(unique=True,verbose_name = u'选手编号')
     competition = models.ForeignKey(Competition,verbose_name = u'比赛')
     cname = models.CharField(max_length=32,verbose_name = u'名称')
     ename = models.CharField(max_length=256, verbose_name = u'英文名称',null=True, blank=True)

@@ -432,7 +432,7 @@ class GetPlayers(APIView):
                     break
         start=(page-1)*10
         end=start+10
-        players= Player.objects.filter(competition=c,area=apk).order_by('sn').values()[start:end]
+        players= Player.objects.filter(competition=c,area=apk).order_by('id').values()[start:end]
         data={'canvote':canvote,'votedplayerid':votemanid,'players':players}
         return Response(data)
 class SearchPlayers(APIView):
@@ -450,7 +450,7 @@ class SearchPlayers(APIView):
         name=data.get('query','')
         start=(page-1)*10
         end=start+10
-        players= Player.objects.filter(Q(cname__icontains=name) | Q(ename__icontains=name)| Q(desc__icontains=name)| Q(country__icontains=name),competition__id=cpk,area=apk).order_by('sn').values()[start:end]
+        players= Player.objects.filter(Q(cname__icontains=name) | Q(ename__icontains=name)| Q(desc__icontains=name)| Q(country__icontains=name),competition__id=cpk,area=apk).order_by('id').values()[start:end]
         return Response(players)
 
 class Vote(APIView):
