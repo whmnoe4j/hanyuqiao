@@ -63,11 +63,12 @@ class MyUserAdmin(UserAdmin):
     # that reference specific fields on auth.User.
     list_display = ('cellphone','is_superuser','is_admin','admin_type')
     list_filter = ('is_admin',)
+    readonly_fields=('pubdate',)
     fieldsets = (
         (None, {'fields': ('cellphone','password')}),
-        ('Personal info', {'fields': ('cname','nick','email','pic','tel','city','zipcode','abroad','country','language','f_l','education','degree','gender',
+        ('Personal info', {'fields': ('cname','nick','email','cell','pic','tel','city','zipcode','abroad','country','language','f_l','education','degree','gender',
                                       'birthday','born_place','university','career','religion','blood','star','zod','inte','desc','point','hanbi','level',
-                                      'installdate','favorites',)}),
+                                      'pubdate','installdate','favorites',)}),
 
         ('Permissions', {'fields': (('is_admin','admin_type'),'is_superuser',)}),
     )

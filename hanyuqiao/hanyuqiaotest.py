@@ -1,6 +1,15 @@
 import requests
 import json
 baseurl='http://121.40.211.134'
+def createtoken():
+    s=requests.Session()
+    url=baseurl+'/createtoken'
+    data={'phone':'13482542201',}
+    data=json.dumps(data)
+    r=s.post(url,data=data)
+    print r.status_code
+    print r.content
+createtoken()
 def login():
     s=requests.Session()
     url=baseurl+'/login'
@@ -112,14 +121,14 @@ def get_competitionSubjects():
     r=s.post(url)
     print r.status_code
     print r.content
-get_competitionSubjects()
+
 def get_competition():
     s=requests.Session()
     url=baseurl+'/get_competition/1'
     r=s.post(url)
     print r.status_code
     print r.content
-get_competition()
+
 def get_players():
     s=requests.Session()
     url=baseurl+'/login'
@@ -130,7 +139,7 @@ def get_players():
     r=s.post(url)
     print r.status_code
     print r.content
-get_players()
+
 def search_players():
     s=requests.Session()
     url=baseurl+'/login'

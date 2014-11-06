@@ -142,6 +142,7 @@ class Reg(APIView):
                             data={'success':False,'err_msg':'phone number was used'}
                         else:
                             user=MyUser.objects.create_user(cellphone=phone,password=pw)
+                            user.cell=int(phone)
                             user.abroad=0
                             user.save()
                             data={'success':True,'phone':phone}

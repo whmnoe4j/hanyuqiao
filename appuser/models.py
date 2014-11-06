@@ -94,6 +94,7 @@ class MyUser(AbstractBaseUser):
     gender = models.IntegerField(choices=GENDER,verbose_name = '性别', null=True, blank=True)
     email = models.EmailField(max_length=2048,verbose_name = '邮箱',unique=True, null=True, blank=True)
     cellphone = models.CharField(max_length=100, verbose_name = '注册号',unique=True)
+    cell = models.IntegerField(verbose_name = '手机号',blank=True,null=True)
     tel=models.IntegerField(verbose_name = '固定电话',blank=True,null=True)
     pic = models.ImageField(upload_to='myuser',verbose_name = '头像',blank=True,null=True)
     abroad = models.IntegerField(choices=CHOICES,verbose_name = '国内国外', default=0)
