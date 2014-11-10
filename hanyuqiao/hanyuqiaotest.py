@@ -9,7 +9,16 @@ def createtoken():
     r=s.post(url,data=data)
     print r.status_code
     print r.content
-createtoken()
+
+def reg():
+    s=requests.Session()
+    url=baseurl+'/reg'
+    data={'phone':'453479002','password':'1','token':'1','abroad':0}
+    data=json.dumps(data)
+    r=s.post(url,data=data)
+    print r.status_code
+    print r.content
+
 def login():
     s=requests.Session()
     url=baseurl+'/login'
@@ -121,7 +130,7 @@ def get_competitionSubjects():
     r=s.post(url)
     print r.status_code
     print r.content
-
+get_competitionSubjects()
 def get_competition():
     s=requests.Session()
     url=baseurl+'/get_competition/1'

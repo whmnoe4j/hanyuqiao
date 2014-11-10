@@ -384,6 +384,16 @@ def get_competitions(request):
     cs = list(cs)
     return HttpResponse(json.dumps(cs),
                         content_type='text/json')
+class GetCompetitionSubjects(APIView):
+    authentication_classes = (UnsafeSessionAuthentication,)
+    permission_classes = (AllowAny,)
+    def post(self, request,pk, format=None):
+        try:
+            c= Competition.objects.get(id=int(pk))
+        except:
+            raise Http404
+        subjects = c.competitionsubject_set.order_by('pubDate','startdate').values()
+        return Response(subjects)
 @require_http_methods(["POST"])
 def get_competitionSubjects(request,pk):
     # since sqlite does not support distinct
