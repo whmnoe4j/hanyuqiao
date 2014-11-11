@@ -130,7 +130,7 @@ def get_competitionSubjects():
     r=s.post(url)
     print r.status_code
     print r.content
-get_competitionSubjects()
+#get_competitionSubjects()
 def get_competition():
     s=requests.Session()
     url=baseurl+'/get_competition/1'
@@ -148,7 +148,7 @@ def get_players():
     r=s.post(url)
     print r.status_code
     print r.content
-
+get_players()
 def search_players():
     s=requests.Session()
     url=baseurl+'/login'
@@ -165,7 +165,7 @@ def search_players():
 def vote():
     s=requests.Session()
     url=baseurl+'/login'
-    data={'phoneoremail':'xuefeihan','password':'1','token':'111','abroad':'0'}
+    data={'phoneoremail':'hanyuqiao','password':'1','token':'111','abroad':'0'}
     data=json.dumps(data)
     r=s.post(url,data=data)
     url=baseurl+'/vote'
@@ -174,6 +174,7 @@ def vote():
     r=s.post(url,data=data)
     print r.status_code
     print r.content
+
 def get_user():
     s=requests.Session()
     url=baseurl+'/get_user/1'

@@ -192,7 +192,17 @@ class Login(APIView):
         else:
             data={'success':False,'err_msg':'empty phone or password'}
         return Response(data)
-
+class LogOut(APIView):
+    authentication_classes = (UnsafeSessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+    def get(self, request, format=None):
+        logout(request)
+        data={'success':True,'msg':'logout'}
+        return Response(data)
+    def post(self, request, format=None):
+        logout(request)
+        data={'success':True,'msg':'logout'}
+        return Response(data)
 
 @require_http_methods(["GET",'POST'])
 def get_language_list(request):
