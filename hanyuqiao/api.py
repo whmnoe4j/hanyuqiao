@@ -303,10 +303,10 @@ class GetMessages(APIView):
         start = int(data.get('start', 0))
         count = int(data.get('count', 8))
         if subject==0:
-            messages = Message.objects.filter(messagecontent__passed=3).order_by('-postdate')[start:start+count]
+            messages = Message.objects.filter(messagecontent__passed=3).distinct().order_by('-postdate')[start:start+count]
         else:
             ms=self.get_object(subject)
-            messages = ms.message_set.filter(messagecontent__passed=3).order_by('-postdate')[start:start+count]
+            messages = ms.message_set.filter(messagecontent__passed=3).distinct().order_by('-postdate')[start:start+count]
         ms=[]
         for m in messages:
             if m.messagecontent_set.filter(language=language,passed=3).exists():
@@ -315,7 +315,10 @@ class GetMessages(APIView):
                 ms.append(m.messagecontent_set.filter(passed=3).order_by('language__index')[0])
         data=[]
         for m in ms:
-            md={'id':m.id,'date':m.postdate.strftime('%Y-%m-%d:%H:%M:%S'),'title':m.title,'text':m.localmedia_set.all()[0].text}
+            if m.localmedia_set.exists():
+                md={'id':m.id,'date':m.postdate.strftime('%Y-%m-%d:%H:%M:%S'),'title':m.title,'text':m.localmedia_set.all()[0].text}
+            else:
+                md={'id':m.id,'date':m.postdate.strftime('%Y-%m-%d:%H:%M:%S'),'title':m.title,'text':''}
             for media in m.localmedia_set.all():
                 if media.mediafile:
                     md['pic']=media.mediafile.name
