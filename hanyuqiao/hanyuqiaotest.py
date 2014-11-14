@@ -83,12 +83,12 @@ def translate():
 def get_messages():
     s=requests.Session()
     url=baseurl+'/get_messages'
-    data={'id':4,'start':0,'count':6}
+    data={'id':0,'start':0,'count':6}
     data=json.dumps(data)
     r=s.post(url,data=data)
     print r.status_code
     print r.content
-get_messages()
+#get_messages()
 def get_message():
     s=requests.Session()
     url=baseurl+'/get_message/1'
@@ -145,7 +145,7 @@ def get_players():
     data={'phoneoremail':'hanyuqiao','password':'1','token':'111','abroad':'0'}
     data=json.dumps(data)
     r=s.post(url,data=data)
-    url=baseurl+'/get_players/1/1/1'
+    url=baseurl+'/get_players/5/1/1'
     r=s.post(url)
     print r.status_code
     print r.content

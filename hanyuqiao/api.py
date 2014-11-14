@@ -66,7 +66,12 @@ def if_update_introduction(request):
     if i.pic.name==name and i.message.id==pk:
         data={'update':False}
     else:
-        data={'update':True,'pic':i.pic.name,'messageid':i.message.id}
+        if request.user.is_authenticated() and request.user.language:
+             language = user.language
+        else:
+            language=Language.objects.order_by('index')[0]
+        ms=i.message.messagecontent_set.filter(language=language)[0]
+        data={'update':True,'pic':i.pic.name,'id':ms.id}
     return HttpResponse(
         json.dumps(data),
         content_type="text/json")
