@@ -33,6 +33,7 @@ def if_introduction_exist():
     r=s.post(url)
     print r.status_code
     print r.content
+
 def newest_introduction():
     s=requests.Session()
     url=baseurl+'/newest_introduction'
@@ -47,7 +48,7 @@ def if_update_introduction():
     r=s.post(url,data=data)
     print r.status_code
     print r.content
-
+if_update_introduction()
 def newest_version():
     s=requests.Session()
     url=baseurl+'/newest_version'
@@ -149,7 +150,7 @@ def get_players():
     r=s.post(url)
     print r.status_code
     print r.content
-get_players()
+#get_players()
 def search_players():
     s=requests.Session()
     url=baseurl+'/login'

@@ -70,8 +70,14 @@ def if_update_introduction(request):
              language = user.language
         else:
             language=Language.objects.order_by('index')[0]
-        ms=i.message.messagecontent_set.filter(language=language)[0]
-        data={'update':True,'pic':i.pic.name,'id':ms.id}
+        if i.message.messagecontent_set.filter(language=language,passed=3).exists():
+            ms=i.message.messagecontent_set.filter(language=language,passed=3)[0]
+            data={'update':True,'pic':i.pic.name,'id':ms.id}
+        elif i.message.messagecontent_set.filter(passed=3).exists():
+            ms=i.message.messagecontent_set.filter(passed=3).order_by('language__index')[0]
+            data={'update':True,'pic':i.pic.name,'id':ms.id}
+        else:
+            data={'update':True,'pic':i.pic.name,'id':''}
     return HttpResponse(
         json.dumps(data),
         content_type="text/json")
