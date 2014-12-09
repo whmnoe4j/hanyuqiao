@@ -46,7 +46,18 @@ def default_json_dump(obj):
 def newest_introduction(request):
     i=IntroductionImage.objects.last()
     if i:
-        data={'pic':i.pic.name,'messageid':i.message.id}
+        if request.user.is_authenticated() and request.user.language:
+             language = user.language
+        else:
+            language=Language.objects.order_by('index')[0]
+        if i.message.messagecontent_set.filter(language=language,passed=3).exists():
+            ms=i.message.messagecontent_set.filter(language=language,passed=3)[0]
+            data={'pic':i.pic.name,'id':ms.id}
+        elif i.message.messagecontent_set.filter(passed=3).exists():
+            ms=i.message.messagecontent_set.filter(passed=3).order_by('language__index')[0]
+            data={'pic':i.pic.name,'id':ms.id}
+        else:
+            data={'pic':i.pic.name,'id':''}
     else:
         data=False
     return HttpResponse(
@@ -93,8 +104,11 @@ def abouthanyuqiao(request):
 
 @require_http_methods(["POST"])
 def newest_version(request):
-    version=Version.objects.order_by('-version')[0]
-    data={'version':version.version,'download':version.download}
+    ios_version=Version.objects.filter(style=1).order_by('-version')[0]
+    android_version=Version.objects.filter(style=2).order_by('-version')[0]
+    ios_data={'version':ios_version.version,'download':ios_version.download}
+    and_data={'version':android_version.version,'download':android_version.download}
+    data={'ios':ios_data,'android':and_data}
     return HttpResponse(json.dumps(data),
         content_type="text/json")
 class CreateToken(APIView):

@@ -3,6 +3,11 @@
 from django.db import models
 from message.models import Message
 class Version(models.Model):
+    CHOICES = (
+        (1, 'iOS'),
+        (2, '安卓'),
+    )
+    style=models.IntegerField(choices=CHOICES,verbose_name=u'类型')
     version = models.CharField(max_length=16,verbose_name='版本号')
     download=models.CharField(max_length=100,verbose_name='下载地址')
 

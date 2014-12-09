@@ -40,15 +40,16 @@ def newest_introduction():
     r=s.post(url)
     print r.status_code
     print r.content
+newest_introduction()
 def if_update_introduction():
     s=requests.Session()
     url=baseurl+'/if_update_introduction'
-    data={'pic':'InfoIm/E2449D7D-96CC-4C9D-8ED0-A88F1B3B9129.png','id':3}
+    data={'pic':'InfoImg/123.png','id':48}
     data=json.dumps(data)
     r=s.post(url,data=data)
     print r.status_code
     print r.content
-if_update_introduction()
+#if_update_introduction()
 def newest_version():
     s=requests.Session()
     url=baseurl+'/newest_version'
