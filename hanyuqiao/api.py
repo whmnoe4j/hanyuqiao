@@ -170,6 +170,8 @@ class Reg(APIView):
                             user.cell=int(phone)
                             user.abroad=0
                             user.save()
+                            user=authenticate(cellphone=phone,password=pw)
+                            login(request,user)
                             data={'success':True,'phone':phone}
                     else:
                         data={'success':False,'err_msg':'empty password'}
@@ -187,6 +189,8 @@ class Reg(APIView):
                     user.abroad=1
                     user.email=email
                     user.save()
+                    user=authenticate(cellphone=email,password=pw)
+                    login(request,user)
                     data={'success':True,'email':email}
             else:
                  data={'success':False,'err_msg':'empty password or email'}
