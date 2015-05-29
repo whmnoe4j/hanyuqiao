@@ -86,4 +86,5 @@ class MyUserAdmin(UserAdmin):
 
 
 admin.site.register(MyUser, MyUserAdmin)
+admin.site.unregister(Group)
 admin.site.register(MyUserToken)
