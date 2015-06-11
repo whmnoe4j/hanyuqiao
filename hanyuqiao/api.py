@@ -117,7 +117,7 @@ class CreateToken(APIView):
     def send_token(self,token,phone):
         url='http://42.96.149.47:1086/sdk/BatchSend.aspx'
         content='【汉语桥】您的验证码是'+token
-        data={'CorpID':'TEST02456','Pwd':'123456','Mobile':phone,'Content':content,}
+        data={'CorpID':'SDK2556','Pwd':'52556','Mobile':phone,'Content':content,}
         r=requests.post(url,data=data)
         return r.content
     def post(self, request, format=None):
